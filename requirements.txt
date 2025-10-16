@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+langchain
+openai
+faiss-cpu
+pypdf
+python-dotenv
+sentence-transformers
+transformers
+huggingface-hub
+psycopg[binary]
+pgvector
+sqlalchemy
+langchain-community
+tiktoken

@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+langchain
+openai
+python-dotenv
+langchain-community
+psycopg[binary]
+pgvector
+sqlalchemy
+pypdf
+python-multipart
+sentence-transformers
+psycopg2-binary
+transformers>=4.0.0
+torch
+llama-cpp-python
+tiktoken
