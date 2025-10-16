@@ -40,6 +40,11 @@ That's it! The application is now running with:
 - FastAPI web server on port 8000
 - Automatic database initialization
 
+Notes on model selection in Docker
+- By default the compose file mounts `./models` into the container at `/models` and also bind-mounts the repo into `/app`. This means local models are used from your host filesystem (no large models are baked into the image).
+- To run the container with the OpenAI-backed LLM, set `LLM_PROVIDER=OPENAI` in your `.env` (and ensure `OPENAI_API_KEY` is set).
+- To run the container with a local HF model, set `LLM_PROVIDER=LOCAL` and `LOCAL_LLM_MODEL=/models/<model-dir>` in `.env` (for example `/models/flan-t5-large`).
+
 ### Ingest a PDF
 
 **Option 1: Via UI**
@@ -68,6 +73,10 @@ curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{"question":"What does this document discuss?"}'
 ```
+
+Testing expectations
+- If `LLM_PROVIDER=LOCAL` you will see the local model produce answers (quality depends on model size). The container reads models from `/models` at runtime.
+- If `LLM_PROVIDER=OPENAI` the container will call OpenAI (requires `OPENAI_API_KEY`).
 
 ## 📋 Requirements
 ## 📋 Requirements
@@ -132,6 +141,27 @@ cp .env.example .env
 # 5. Run the server
 uvicorn backend.main:app --reload --port 8000
 ```
+
+Using a local HF model (offline) in local dev
+
+1. Download a model to `./models` (example uses `google/flan-t5-large`):
+
+```bash
+python scripts/download_model.py --model google/flan-t5-large --dest models/flan-t5-large
+```
+
+2. Set `.env` to use the local model:
+
+```bash
+EMBEDDING_PROVIDER=LOCAL
+LLM_PROVIDER=LOCAL
+LOCAL_LLM_MODEL=/models/flan-t5-large
+LOCAL_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+```
+
+3. Re-run the server and ask questions (same `/chat` endpoint).
+
+Tip: If you change `EMBEDDING_PROVIDER` you'll need to re-ingest your PDFs so vector dimensions match the chosen embedder.
 
 ## 🎛️ Advanced Configuration
 

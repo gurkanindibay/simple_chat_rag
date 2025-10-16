@@ -256,7 +256,18 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
             # dedupe retrieved docs to avoid repeated identical chunks
             docs = _dedupe_documents(docs)
             context = "\n\n".join([d.page_content for d in docs[:6]])
-            prompt_text = f"Use the following context to answer the question.\n\nContext:\n{context}\n\nQuestion: {question}\n\nAnswer:"
+            # Stronger prompt: ask for a numbered, step-by-step answer, require citations
+            # with page numbers when available, and return 'I don't know.' exactly if
+            # the context does not contain the answer. This reduces hallucinations.
+            prompt_text = (
+                "You are an assistant that answers using only the provided context.\n\n"
+                "Context:\n" + context + "\n\n"
+                "Question: " + question + "\n\n"
+                "Instructions:\n"
+                "1) If the answer can be found in the context, provide a clear, numbered, step-by-step list (use numbers 1., 2., 3., ...).\n"
+                "2) For each step, cite the source(s) in parentheses with page numbers or section titles when available (for example: (source: page 12)).\n"
+                "3) If the context does NOT contain the answer, reply exactly: 'I don't know.' Do NOT make up facts.\n\n"
+                "Answer:")
 
             try:
                 import torch
@@ -302,7 +313,15 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
                         docs = retriever.get_documents(question)
                     docs = _dedupe_documents(docs)
                     context = "\n\n".join([d.page_content for d in docs[:8]])
-                    prompt_text = f"Use the following context to answer the question.\n\nContext:\n{context}\n\nQuestion: {question}\n\nAnswer:"
+                    prompt_text = (
+                        "You are an assistant that answers using only the provided context.\n\n"
+                        "Context:\n" + context + "\n\n"
+                        "Question: " + question + "\n\n"
+                        "Instructions:\n"
+                        "1) If the answer can be found in the context, provide a clear, numbered, step-by-step list (use numbers 1., 2., 3., ...).\n"
+                        "2) For each step, cite the source(s) in parentheses with page numbers or section titles when available (for example: (source: page 12)).\n"
+                        "3) If the context does NOT contain the answer, reply exactly: 'I don't know.' Do NOT make up facts.\n\n"
+                        "Answer:")
                     resp = llm.create(prompt=prompt_text, max_tokens=LLAMA_MAX_TOKENS, temperature=LLAMA_TEMPERATURE)
                     # llama-cpp-python response shape may vary; handle common forms
                     if isinstance(resp, dict) and 'choices' in resp and resp['choices']:
@@ -321,7 +340,16 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
             llm = ChatOpenAI(temperature=llm_temperature, model=model_name)
         except TypeError:
             llm = ChatOpenAI(temperature=llm_temperature, model_name=model_name)
-        template = "You are a helpful assistant. Use the retrieved documents to answer the question. Include source page numbers if available.\n\nContext:\n{context}\n\nQuestion: {question}\n\nAnswer:"
+        template = (
+            "You are a helpful assistant that must answer using only the retrieved documents.\n\n"
+            "Context:\n{context}\n\n"
+            "Question: {question}\n\n"
+            "Instructions:\n"
+            "1) If the answer exists in the context, provide a clear, numbered, step-by-step list (1., 2., 3., ...).\n"
+            "2) For each step, cite the source(s) in parentheses with page numbers or section titles when available (for example: (source: page 12)).\n"
+            "3) If the context does NOT contain the answer, reply exactly: 'I don't know.' Do NOT make up facts.\n\n"
+            "Answer:"
+        )
         prompt = PromptTemplate(template=template, input_variables=["context", "question"])
         qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, chain_type_kwargs={"prompt": prompt})
         result = qa.run(question)
