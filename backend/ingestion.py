@@ -20,9 +20,16 @@ from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 
 # Local LLM support (optional)
-LOCAL_LLM_MODEL = os.environ.get('LOCAL_LLM_MODEL', 'google/flan-t5-small')
+# Use a stronger Flan-T5 variant by default for better quality when running locally.
+LOCAL_LLM_MODEL = os.environ.get('LOCAL_LLM_MODEL', 'google/flan-t5-large')
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'OPENAI')
 LLAMA_MODEL_PATH = os.environ.get('LLAMA_MODEL_PATH')
+
+# Local generation settings (tunable via env)
+LOCAL_LLM_TEMPERATURE = float(os.environ.get('LOCAL_LLM_TEMPERATURE', '0.2'))
+LOCAL_LLM_MAX_NEW_TOKENS = int(os.environ.get('LOCAL_LLM_MAX_NEW_TOKENS', '256'))
+LLAMA_TEMPERATURE = float(os.environ.get('LLAMA_TEMPERATURE', '0.2'))
+LLAMA_MAX_TOKENS = int(os.environ.get('LLAMA_MAX_TOKENS', '512'))
 OPENAI_CHAT_MODEL = os.environ.get('OPENAI_CHAT_MODEL', 'gpt-4o-mini')
 
 # cache for loaded local model
@@ -262,13 +269,13 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
                 inputs = tokenizer(prompt_text, return_tensors='pt', truncation=True, max_length=512)
                 inputs = {k: v.to(device) for k, v in inputs.items()}
 
-                # Use sampling for more fluent outputs with low temperature and nucleus sampling
+                # Use sampling for more fluent outputs with configurable temperature/top_p
                 outputs = model.generate(
                     **inputs,
-                    max_new_tokens=200,
+                    max_new_tokens=LOCAL_LLM_MAX_NEW_TOKENS,
                     do_sample=True,
-                    temperature=0.3,
-                    top_p=0.9,
+                    temperature=LOCAL_LLM_TEMPERATURE,
+                    top_p=0.95,
                     no_repeat_ngram_size=3,
                     num_return_sequences=1,
                 )
@@ -296,8 +303,12 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
                     docs = _dedupe_documents(docs)
                     context = "\n\n".join([d.page_content for d in docs[:8]])
                     prompt_text = f"Use the following context to answer the question.\n\nContext:\n{context}\n\nQuestion: {question}\n\nAnswer:"
-                    resp = llm.create(prompt=prompt_text, max_tokens=256, temperature=0.2)
-                    answer = resp['choices'][0]['text'] if 'choices' in resp and resp['choices'] else resp.get('text', '')
+                    resp = llm.create(prompt=prompt_text, max_tokens=LLAMA_MAX_TOKENS, temperature=LLAMA_TEMPERATURE)
+                    # llama-cpp-python response shape may vary; handle common forms
+                    if isinstance(resp, dict) and 'choices' in resp and resp['choices']:
+                        answer = resp['choices'][0].get('text') or resp['choices'][0].get('message', {}).get('content', '')
+                    else:
+                        answer = resp.get('text', '') if isinstance(resp, dict) else str(resp)
                     return {"answer": answer}
                 except Exception as e:
                     print(f"Llama generation failed: {e}")
