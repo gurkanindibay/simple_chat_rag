@@ -35,19 +35,26 @@ async def config():
 
 @app.get("/info", response_class=HTMLResponse)
 async def info_page():
-    """Serve the info page with embedded configuration and ingestion data."""
+    """Serve the info page with embedded configuration, ingestion, and embedding status."""
     import json
     
-    # Fetch current config and ingestion data on server side
+    # Fetch current config, ingestion data, and embedding stats on server side
     cfg = {
         "EMBEDDING_PROVIDER": os.environ.get("EMBEDDING_PROVIDER"),
         "LLM_PROVIDER": os.environ.get("LLM_PROVIDER"),
     }
     ingested = get_ingestion_log()
     
+    # Get embedding table statistics
+    try:
+        embedding_stats = get_embedding_table_stats()
+    except Exception as e:
+        embedding_stats = {"error": str(e)}
+    
     # Embed data as JSON in the page so JS has it immediately available
     cfg_json = json.dumps(cfg, indent=2)
     ingested_json = json.dumps(ingested)
+    stats_json = json.dumps(embedding_stats)
     
     html = f"""<!doctype html>
 <html>
@@ -59,6 +66,9 @@ async def info_page():
       body {{ font-family: system-ui, sans-serif; max-width:800px;margin:40px auto;color:#111 }}
       pre {{ background:#f7f7f7; padding:12px; border:1px solid #eee }}
       button {{ margin-top:8px }}
+      .stat-table {{ margin:12px 0 }}
+      .stat-table tr {{ border-bottom:1px solid #ddd }}
+      .stat-table td {{ padding:8px; }}
     </style>
   </head>
   <body>
@@ -71,7 +81,13 @@ async def info_page():
     <h2>Ingested PDFs</h2>
     <div id="ingested"></div>
 
-    <h2>Embeddings</h2>
+    <h2>Embeddings in Database</h2>
+    <table class="stat-table" id="embeddingStats">
+      <thead><tr><th>Table</th><th>Row Count</th></tr></thead>
+      <tbody id="embeddingStatsBody"></tbody>
+    </table>
+
+    <h2>Delete Embeddings</h2>
     <div>
       <button id="delete">Delete all embeddings (truncate table)</button>
       <div id="deleteResult"></div>
@@ -83,6 +99,7 @@ async def info_page():
       // Data embedded from server
       const serverConfig = {cfg_json};
       const serverIngested = {ingested_json};
+      const serverStats = {stats_json};
 
       function renderConfig() {{
         document.getElementById('cfg').textContent = JSON.stringify(serverConfig, null, 2);
@@ -101,14 +118,45 @@ async def info_page():
         }}
       }}
 
+      function renderEmbeddingStats() {{
+        const stats = serverStats || {{}};
+        const tbody = document.getElementById('embeddingStatsBody');
+        
+        if (stats.error) {{
+          tbody.innerHTML = `<tr><td colspan="2"><em>Error: ${{stats.error}}</em></td></tr>`;
+          return;
+        }}
+        
+        const rows = Object.entries(stats).map(([table, count]) => 
+          `<tr><td><strong>${{table}}</strong></td><td>${{typeof count === 'object' ? JSON.stringify(count) : count}}</td></tr>`
+        ).join('');
+        
+        if (rows.length === 0) {{
+          tbody.innerHTML = '<tr><td colspan="2"><em>No embedding tables found</em></td></tr>';
+        }} else {{
+          tbody.innerHTML = rows;
+        }}
+      }}
+
       async function deleteEmbeddings() {{
         if (!confirm('Delete all embeddings? This cannot be undone.')) return;
         try {{
           const res = await fetch('/embeddings/delete', {{ method: 'POST' }});
           if (!res.ok) throw new Error(`HTTP ${{res.status}}`);
           const j = await res.json();
-          const msg = j.error ? 'Error: ' + j.error : 'Success: ' + JSON.stringify(j.result);
+          const msg = j.error ? 'Error: ' + j.error : 'Deleted: ' + JSON.stringify(j.result);
           document.getElementById('deleteResult').textContent = msg;
+          // Refresh stats after delete
+          setTimeout(async () => {{
+            try {{
+              const res = await fetch('/embeddings/status');
+              const j = await res.json();
+              serverStats = j.tables || {{}};
+              renderEmbeddingStats();
+            }} catch (e) {{
+              console.error('Error refreshing stats:', e);
+            }}
+          }}, 500);
         }} catch (e) {{
           console.error('Error deleting embeddings:', e);
           document.getElementById('deleteResult').textContent = 'Error: ' + e.message;
@@ -119,6 +167,7 @@ async def info_page():
       function initPage() {{
         renderConfig();
         renderIngestedPdfs();
+        renderEmbeddingStats();
         const deleteBtn = document.getElementById('delete');
         if (deleteBtn) {{
           deleteBtn.onclick = deleteEmbeddings;

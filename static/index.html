@@ -4,32 +4,245 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RAG Chat — Citus Docs</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-      body { font-family: system-ui, sans-serif; max-width:800px;margin:40px auto;color:#111 }
-      #chat { border:1px solid #ddd; padding:12px; min-height:300px }
-      .msg { margin:8px 0 }
-      .user { color: #005; }
-      .bot { color: #060; }
-      #sources { font-size:0.9em; color:#444 }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+      #root { max-width: 1200px; margin: 0 auto; }
+      .container { display: grid; grid-template-columns: 1fr 350px; gap: 24px; height: calc(100vh - 40px); max-height: calc(100vh - 40px); }
+      @media (max-width: 1024px) { .container { grid-template-columns: 1fr; height: auto; } .sidebar { max-height: 50vh; overflow-y: auto; } }
+      .chat-section { display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden; }
+      .chat-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 12px; }
+      .chat-header h1 { font-size: 24px; font-weight: 600; }
+      .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+      .message { display: flex; gap: 8px; animation: slideIn 0.3s ease-out; }
+      @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .message.user { justify-content: flex-end; }
+      .message-content { max-width: 70%; padding: 12px 16px; border-radius: 12px; word-wrap: break-word; line-height: 1.6; }
+      .message.bot .message-content { background: #f0f0f0; color: #333; }
+      .message.user .message-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+      .message-content h1 { font-size: 1.3em; font-weight: 700; margin: 12px 0 6px 0; }
+      .message-content h2 { font-size: 1.15em; font-weight: 700; margin: 10px 0 4px 0; }
+      .message-content h3 { font-size: 1.05em; font-weight: 700; margin: 8px 0 3px 0; }
+      .message-content p { margin: 6px 0; }
+      .message-content ul, .message-content ol { margin: 8px 0 8px 20px; }
+      .message-content li { margin: 3px 0; }
+      .message-content code { background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+      .message-content pre { background: rgba(0,0,0,0.15); padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 0.85em; line-height: 1.4; }
+      .message-content pre code { background: none; padding: 0; }
+      .message-content strong { font-weight: 700; }
+      .message-content em { font-style: italic; }
+      .message-content a { color: #667eea; text-decoration: none; }
+      .message-content a:hover { text-decoration: underline; }
+      .message.bot .message-content a { color: #667eea; }
+      .message.user .message-content a { color: #fff; text-decoration: underline; }
+      .message-content blockquote { border-left: 3px solid #667eea; padding-left: 12px; margin-left: 0; margin-right: 0; margin: 8px 0; color: #666; font-style: italic; }
+      .message-content table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.9em; }
+      .message-content table thead { background: rgba(102, 126, 234, 0.1); }
+      .message-content table th, .message-content table td { padding: 6px 8px; border: 1px solid rgba(102, 126, 234, 0.3); text-align: left; }
+      .message-content table tr:hover { background: rgba(102, 126, 234, 0.05); }
+      .sources { margin-top: 8px; font-size: 12px; color: #666; }
+      .sources ul { list-style: none; margin-top: 6px; }
+      .sources li { margin: 4px 0; padding: 4px 0; border-left: 2px solid #667eea; padding-left: 8px; }
+      .chat-input-area { border-top: 1px solid #eee; padding: 16px; background: #fafafa; display: flex; gap: 8px; }
+      .input-wrapper { flex: 1; display: flex; gap: 8px; }
+      input[type="text"], input[type="file"] { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+      input[type="text"]:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+      input[type="file"] { flex: 0; }
+      button { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+      .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+      .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
+      .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+      .btn-danger { background: #ff6b6b; color: white; }
+      .btn-danger:hover:not(:disabled) { background: #ff5252; transform: translateY(-2px); }
+      .btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+      .sidebar { display: flex; flex-direction: column; gap: 16px; }
+      .card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+      .card h3 { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+      .card-icon { color: #667eea; font-size: 16px; }
+      .config-item { display: flex; align-items: center; gap: 10px; padding: 8px; background: #f9f9f9; border-radius: 6px; margin-bottom: 8px; font-size: 13px; }
+      .config-label { font-weight: 500; color: #666; min-width: 80px; }
+      .provider-badge { display: inline-block; padding: 4px 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 4px; font-size: 12px; font-weight: 500; }
+      .pdf-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+      .pdf-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f9f9f9; border-radius: 6px; font-size: 12px; }
+      .pdf-icon { color: #ff6b6b; font-size: 14px; }
+      .pdf-info { flex: 1; }
+      .pdf-name { font-weight: 500; color: #333; }
+      .pdf-time { font-size: 11px; color: #999; }
+      .stats-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+      .stats-table thead { background: #f5f5f5; }
+      .stats-table th { padding: 8px; text-align: left; font-weight: 600; color: #333; border-bottom: 1px solid #ddd; }
+      .stats-table td { padding: 8px; border-bottom: 1px solid #eee; color: #666; }
+      .stats-table tbody tr:hover { background: #f9f9f9; }
+      .stat-count { font-weight: 600; color: #667eea; }
+      .empty-state { padding: 20px; text-align: center; color: #999; font-size: 13px; }
+      .empty-state i { font-size: 32px; margin-bottom: 12px; opacity: 0.5; }
+      .delete-section { margin-top: auto; }
+      .delete-section .card { background: #fff5f5; border: 1px solid #ffe0e0; }
+      .delete-result { margin-top: 12px; padding: 10px; background: white; border-radius: 6px; font-size: 12px; color: #666; max-height: 150px; overflow-y: auto; }
+      .delete-result.success { color: #27ae60; background: #f0f8f4; }
+      .delete-result.error { color: #e74c3c; background: #fef5f5; }
+      .loading { display: inline-block; animation: spin 0.8s linear infinite; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .scrollbar-hidden::-webkit-scrollbar { display: none; }
     </style>
   </head>
   <body>
-    <h1>RAG Chat — Citus Docs</h1>
-    <p>Ask questions about the PDF. First click "Ingest PDF" (or upload a PDF).</p>
-
-    <div>
-      <input id="filein" type="file" accept="application/pdf" />
-      <button id="ingest">Ingest PDF</button>
-      <a href="/info" style="margin-left:12px">Configuration / Embeddings</a>
-    </div>
-
-    <div id="chat"></div>
-
-    <form id="frm">
-      <input id="q" autocomplete="off" placeholder="Ask a question" style="width:80%" />
-      <button>Send</button>
-    </form>
-
-    <script src="/static/app.js"></script>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+      function App() {
+        const [messages, setMessages] = useState([]);
+        const [question, setQuestion] = useState('');
+        const [config, setConfig] = useState(null);
+        const [ingested, setIngested] = useState([]);
+        const [stats, setStats] = useState({});
+        const [loading, setLoading] = useState(false);
+        const [deleting, setDeleting] = useState(false);
+        const [deleteResult, setDeleteResult] = useState('');
+        const [selectedFile, setSelectedFile] = useState(null);
+        const messagesEndRef = useRef(null);
+        useEffect(() => { initPage(); }, []);
+        useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+        const initPage = async () => {
+          await loadConfig();
+          await loadIngested();
+          await loadStats();
+        };
+        const loadConfig = async () => {
+          try {
+            const res = await fetch('/config');
+            const data = await res.json();
+            setConfig(data);
+          } catch (e) { console.error('Error loading config:', e); }
+        };
+        const loadIngested = async () => {
+          try {
+            const res = await fetch('/ingestion-status');
+            const data = await res.json();
+            setIngested(data.ingested || []);
+          } catch (e) { console.error('Error loading ingested:', e); }
+        };
+        const loadStats = async () => {
+          try {
+            const res = await fetch('/embeddings/status');
+            const data = await res.json();
+            setStats(data.tables || {});
+          } catch (e) { console.error('Error loading stats:', e); }
+        };
+        const handleIngest = async () => {
+          if (!selectedFile) { alert('Please select a PDF file'); return; }
+          const form = new FormData();
+          form.append('pdf', selectedFile);
+          setMessages(prev => [...prev, { role: 'user', text: `Uploading ${selectedFile.name}...` }]);
+          try {
+            const res = await fetch('/ingest', { method: 'POST', body: form });
+            const data = await res.json();
+            setMessages(prev => [...prev, { role: 'bot', text: data.message || JSON.stringify(data) }]);
+            setSelectedFile(null);
+            document.getElementById('filein').value = '';
+            setTimeout(() => { loadIngested(); loadStats(); }, 500);
+          } catch (e) { setMessages(prev => [...prev, { role: 'bot', text: `Error: ${e.message}` }]); }
+        };
+        const handleChat = async (e) => {
+          e.preventDefault();
+          if (!question.trim()) return;
+          const q = question;
+          setQuestion('');
+          setMessages(prev => [...prev, { role: 'user', text: q }]);
+          setLoading(true);
+          try {
+            const res = await fetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q }) });
+            const data = await res.json();
+            setMessages(prev => [...prev, { role: 'bot', text: data.answer || JSON.stringify(data), sources: data.sources }]);
+          } catch (e) { setMessages(prev => [...prev, { role: 'bot', text: `Error: ${e.message}` }]); }
+          finally { setLoading(false); }
+        };
+        const handleDelete = async () => {
+          if (!confirm('Are you sure you want to delete all embeddings? This cannot be undone.')) return;
+          setDeleting(true);
+          setDeleteResult('');
+          try {
+            const res = await fetch('/embeddings/delete', { method: 'POST' });
+            const data = await res.json();
+            setDeleteResult(`Success: ${JSON.stringify(data)}`);
+            setTimeout(() => { loadIngested(); loadStats(); }, 500);
+          } catch (e) { setDeleteResult(`Error: ${e.message}`); }
+          finally { setDeleting(false); }
+        };
+        return (
+          <div className="container">
+            <div className="chat-section">
+              <div className="chat-header"><i className="fas fa-robot"></i><h1>Citus AI Assistant</h1></div>
+              <div className="chat-messages scrollbar-hidden">
+                {messages.length === 0 && <div className="empty-state"><i className="fas fa-comments"></i><p>Start by uploading a PDF or asking a question</p></div>}
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`message ${msg.role}`}>
+                    <div>
+                      <div className="message-content" dangerouslySetInnerHTML={{ __html: msg.role === 'bot' ? marked.parse(msg.text) : msg.text.replace(/\n/g, '<br/>') }}></div>
+                      {msg.sources && msg.sources.length > 0 && (
+                        <div className="sources"><strong>📚 Sources:</strong><ul>{msg.sources.map((src, i) => (<li key={i}><em>{src.source}</em>: {src.text.substring(0, 50)}...</li>))}</ul></div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="chat-input-area">
+                <div className="input-wrapper">
+                  <input type="file" id="filein" accept="application/pdf" onChange={(e) => setSelectedFile(e.target.files[0])} />
+                  <button onClick={handleIngest} className="btn-primary"><i className="fas fa-upload"></i> Upload PDF</button>
+                  <input type="text" id="q" placeholder="Ask a question..." value={question} onChange={(e) => setQuestion(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleChat(e)} disabled={loading} />
+                  <button onClick={handleChat} className="btn-primary" disabled={loading}>{loading ? <i className="fas fa-spinner loading"></i> : <i className="fas fa-paper-plane"></i>}</button>
+                </div>
+              </div>
+            </div>
+            <div className="sidebar">
+              <div className="card">
+                <h3><i className="fas fa-cog card-icon"></i>Configuration</h3>
+                {config ? (
+                  <div>
+                    <div className="config-item"><span className="config-label">Embeddings:</span><span className="provider-badge">{config.EMBEDDING_PROVIDER || 'N/A'}</span></div>
+                    <div className="config-item"><span className="config-label">LLM:</span><span className="provider-badge">{config.LLM_PROVIDER || 'N/A'}</span></div>
+                  </div>
+                ) : (<div className="empty-state">Loading...</div>)}
+              </div>
+              <div className="card">
+                <h3><i className="fas fa-file-pdf card-icon"></i>Ingested PDFs ({ingested.length})</h3>
+                {ingested.length > 0 ? (
+                  <div className="pdf-list">{ingested.map((item, idx) => (
+                    <div key={idx} className="pdf-item">
+                      <i className="fas fa-file-pdf pdf-icon"></i>
+                      <div className="pdf-info">
+                        <div className="pdf-name">{item.filename}</div>
+                        <div className="pdf-time">{new Date(item.timestamp).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  ))}</div>
+                ) : (<div className="empty-state"><i className="fas fa-inbox"></i><p>No PDFs ingested yet</p></div>)}
+              </div>
+              <div className="card">
+                <h3><i className="fas fa-database card-icon"></i>Vector DB Stats</h3>
+                {Object.keys(stats).length > 0 ? (
+                  <table className="stats-table">
+                    <thead><tr><th>Table</th><th>Count</th></tr></thead>
+                    <tbody>{Object.entries(stats).map(([table, count]) => (<tr key={table}><td>{table}</td><td className="stat-count">{count}</td></tr>))}</tbody>
+                  </table>
+                ) : (<div className="empty-state"><i className="fas fa-inbox"></i><p>No data</p></div>)}
+              </div>
+              <div className="card delete-section">
+                <button onClick={handleDelete} className="btn-danger" style={{ width: '100%' }} disabled={deleting}><i className="fas fa-trash"></i> {deleting ? 'Deleting...' : 'Delete All Embeddings'}</button>
+                {deleteResult && <div className={`delete-result ${deleteResult.includes('Success') ? 'success' : 'error'}`}>{deleteResult}</div>}
+              </div>
+            </div>
+          </div>
+        );
+      }
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
   </body>
-  </html>
+</html>
