@@ -19,8 +19,8 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://postgres:pass@db:5432/demo
-      EMBEDDING_PROVIDER: OPENAI
-      LLM_PROVIDER: OPENAI
+      EMBEDDING_PROVIDER: LOCAL
+      LLM_PROVIDER: LOCAL
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4o}
     depends_on:
       - db

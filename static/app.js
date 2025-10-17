@@ -38,3 +38,18 @@ frm.onsubmit = async (e) => {
     chatEl.appendChild(s);
   }
 };
+
+// optional: show a small banner if providers are set (fetch /config on load)
+async function showProviders(){
+  try{
+    const res = await fetch('/config');
+    if(!res.ok) return;
+    const j = await res.json();
+    const b = document.createElement('div');
+    b.style.fontSize='0.9em'; b.style.color='#666'; b.style.marginTop='8px';
+    b.textContent = `Providers — Embeddings: ${j.EMBEDDING_PROVIDER || 'N/A'} | LLM: ${j.LLM_PROVIDER || 'N/A'}`;
+    document.body.insertBefore(b, document.body.firstChild);
+  }catch(e){ /* ignore */ }
+}
+
+showProviders();

@@ -90,6 +90,103 @@ def ensure_index():
     os.makedirs(INDEX_DIR, exist_ok=True)
 
 
+def log_ingestion(pdf_path: str):
+    """Log an ingested PDF to a simple JSON file in the db directory."""
+    import json
+    from datetime import datetime
+    
+    log_file = os.path.join(INDEX_DIR, "ingestion_log.json")
+    
+    # Load existing log or start fresh
+    log_data = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r') as f:
+                log_data = json.load(f)
+        except Exception:
+            log_data = []
+    
+    # Append new entry
+    entry = {
+        "pdf_path": pdf_path,
+        "filename": os.path.basename(pdf_path),
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+    log_data.append(entry)
+    
+    # Write back
+    try:
+        with open(log_file, 'w') as f:
+            json.dump(log_data, f, indent=2)
+    except Exception as e:
+        print(f"Warning: Failed to log ingestion: {e}")
+
+
+def get_ingestion_log():
+    """Retrieve the list of ingested PDFs from the log file."""
+    import json
+    
+    log_file = os.path.join(INDEX_DIR, "ingestion_log.json")
+    if not os.path.exists(log_file):
+        return []
+    
+    try:
+        with open(log_file, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Warning: Failed to read ingestion log: {e}")
+        return []
+
+
+def clear_ingestion_log():
+    """Clear the ingestion log file."""
+    import json
+    
+    log_file = os.path.join(INDEX_DIR, "ingestion_log.json")
+    
+    try:
+        # Write empty list to log file
+        with open(log_file, 'w') as f:
+            json.dump([], f, indent=2)
+        return True
+    except Exception as e:
+        print(f"Warning: Failed to clear ingestion log: {e}")
+        return False
+
+
+def get_embedding_table_stats():
+    """Get row counts for all embedding tables.
+    
+    Returns a dict mapping table names to their row counts.
+    Raises EnvironmentError if DATABASE_URL is not set.
+    """
+    if DATABASE_URL is None:
+        raise EnvironmentError("DATABASE_URL not set. Can't check embedding tables.")
+    
+    from sqlalchemy import create_engine, text, inspect
+    
+    engine = create_engine(DATABASE_URL)
+    inspector = inspect(engine)
+    
+    with engine.connect() as conn:
+        tables = inspector.get_table_names()
+        
+        # Find embedding-related tables
+        candidate_tables = [t for t in tables if t.startswith('langchain_pg') or 'embed' in t or 'vector' in t]
+        
+        result = {}
+        for tbl in candidate_tables:
+            try:
+                r = conn.execute(text(f"SELECT COUNT(*) FROM {tbl}"))
+                row = r.fetchone()
+                count = int(row[0]) if row is not None else 0
+                result[tbl] = count
+            except Exception as e:
+                result[tbl] = {"error": str(e)}
+        
+        return result
+
+
 def get_embeddings():
     """Return an embeddings instance based on configuration. Raises EnvironmentError with
     a helpful message if the chosen provider is unavailable.
@@ -159,7 +256,7 @@ def ingest_pdf(pdf_path: str):
         print(f"Inserted {len(docs)} vectors into {PGVECTOR_TABLE}")
 
 
-def load_retriever(k: int = 4):
+def load_retriever(k: int = 15):
     """Create and return a retriever backed by Postgres/pgvector."""
     if DATABASE_URL is None:
         raise EnvironmentError("DATABASE_URL not set. Can't load retriever from pgvector.")
@@ -351,9 +448,16 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
             "Answer:"
         )
         prompt = PromptTemplate(template=template, input_variables=["context", "question"])
-        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, chain_type_kwargs={"prompt": prompt})
-        result = qa.run(question)
-        return {"answer": result}
+        try:
+            qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, chain_type_kwargs={"prompt": prompt})
+            result = qa.run(question)
+            return {"answer": result}
+        except Exception as e:
+            print(f"[ERROR] OpenAI LLM failed: {e}")
+            import traceback
+            traceback.print_exc()
+            # Fall through to fallback
+            pass
 
     # No LLM configured — perform a safe extractive fallback using retrieved docs.
     try:
@@ -374,3 +478,59 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
 
     answer = "\n\n---\n\n".join(pieces)
     return {"answer": f"Extractive answer (no LLM configured):\n\n{answer}"}
+
+
+def delete_embeddings():
+    """Delete (truncate) all embedding tables.
+    
+    - Try the configured PGVECTOR_TABLE first.
+    - If not found, auto-detect candidate embedding tables (langchain defaults or names containing 'embed'/'vector').
+    - Truncate all candidates with CASCADE to handle foreign key constraints.
+    
+    Returns a dict mapping truncated table names to number of rows deleted.
+    Raises EnvironmentError on configuration or SQL errors.
+    
+    Security note: Table names are determined server-side only; no client parameters accepted.
+    """
+    if DATABASE_URL is None:
+        raise EnvironmentError("DATABASE_URL not set. Can't delete embeddings from pgvector.")
+
+    from sqlalchemy import create_engine, text, inspect
+    from sqlalchemy.exc import ProgrammingError, OperationalError
+
+    engine = create_engine(DATABASE_URL)
+    inspector = inspect(engine)
+    
+    # Use engine.begin() for auto-commit transaction
+    with engine.begin() as conn:
+        try:
+            tables = inspector.get_table_names()
+        except Exception as e:
+            raise EnvironmentError(f"Failed to list tables: {e}")
+
+        # Try configured PGVECTOR_TABLE first
+        to_delete = []
+        if PGVECTOR_TABLE in tables:
+            to_delete = [PGVECTOR_TABLE]
+        else:
+            # Auto-detect candidate embedding tables
+            candidates = [t for t in tables if t.startswith('langchain_pg') or 'embed' in t or 'vector' in t]
+            if not candidates:
+                raise EnvironmentError(f"No embeddings table found (looked for '{PGVECTOR_TABLE}'). Available tables: {tables}")
+            to_delete = candidates
+
+        # Truncate all identified tables with CASCADE to handle foreign key constraints
+        result = {}
+        try:
+            tbls = ','.join(to_delete)
+            conn.execute(text(f"TRUNCATE TABLE {tbls} RESTART IDENTITY CASCADE"))
+            # After truncation, counts are zero
+            for t in to_delete:
+                result[t] = 0
+            
+            # Also clear the ingestion log when embeddings are deleted
+            clear_ingestion_log()
+            
+            return result
+        except Exception as e:
+            raise EnvironmentError(f"Failed to truncate tables {to_delete}: {e}")
