@@ -9,6 +9,7 @@ from pathlib import Path
 
 from backend.ingestion import ensure_index, ingest_pdf, load_retriever, chat_with_retriever
 from backend.ingestion import delete_embeddings, log_ingestion, get_ingestion_log, get_embedding_table_stats
+from backend.ingestion import get_config_from_db, update_config_in_db
 
 load_dotenv()
 
@@ -41,6 +42,11 @@ class ChatRequest(BaseModel):
     question: str
 
 
+class ConfigUpdateRequest(BaseModel):
+    key: str
+    value: str
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index():
     return FileResponse("./static/index.html")
@@ -48,12 +54,53 @@ async def index():
 
 @app.get("/config")
 async def config():
-    # Return current provider configuration (for UI/debug)
-    cfg = {
-        "EMBEDDING_PROVIDER": os.environ.get("EMBEDDING_PROVIDER"),
-        "LLM_PROVIDER": os.environ.get("LLM_PROVIDER"),
-    }
-    return cfg
+    # Return current provider configuration from database
+    try:
+        cfg = get_config_from_db()
+        return cfg
+    except Exception as e:
+        # Fall back to environment variables
+        cfg = {
+            "EMBEDDING_PROVIDER": os.environ.get("EMBEDDING_PROVIDER", "OPENAI"),
+            "LLM_PROVIDER": os.environ.get("LLM_PROVIDER", "OPENAI"),
+        }
+        return cfg
+
+
+@app.post("/config/update")
+async def update_config(req: ConfigUpdateRequest):
+    """Update a configuration value (LLM_PROVIDER or EMBEDDING_PROVIDER)."""
+    try:
+        # Validate inputs
+        if req.key not in ['LLM_PROVIDER', 'EMBEDDING_PROVIDER']:
+            return JSONResponse(
+                {"error": f"Invalid config key: {req.key}. Must be LLM_PROVIDER or EMBEDDING_PROVIDER"},
+                status_code=400
+            )
+        
+        if req.value not in ['OPENAI', 'LOCAL']:
+            return JSONResponse(
+                {"error": f"Invalid config value: {req.value}. Must be OPENAI or LOCAL"},
+                status_code=400
+            )
+        
+        # Update in database
+        update_config_in_db(req.key, req.value)
+        
+        # Return updated config
+        updated_config = get_config_from_db()
+        
+        return {
+            "status": "success",
+            "message": f"{req.key} updated to {req.value}",
+            "config": updated_config
+        }
+    except EnvironmentError as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
+    except ValueError as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
+    except Exception as e:
+        return JSONResponse({"error": f"Internal error: {e}"}, status_code=500)
 
 
 @app.get("/info", response_class=HTMLResponse)

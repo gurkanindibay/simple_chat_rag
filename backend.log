@@ -1,0 +1,523 @@
+INFO:     Will watch for changes in these directories: ['/Users/gurkan_indibay/source/ai_tryouts']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [35283] using WatchFiles
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [35329]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:53230 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53259 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:378: LangChainDeprecationWarning: The class `OpenAIEmbeddings` was deprecated in LangChain 0.0.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import OpenAIEmbeddings``.
+  return OpenAIEmbeddings()
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: This class is pending deprecation and may be removed in a future version. You can swap to using the `PGVector` implementation in `langchain_postgres`. Please read the guidelines in the doc-string of this class to follow prior to migrating as there are some differences between the implementations. See <https://github.com/langchain-ai/langchain-postgres> for details about the new implementation.
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/main.py:317: LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:`~invoke` instead.
+  docs = retriever.get_relevant_documents(req.question)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:609: LangChainDeprecationWarning: The class `ChatOpenAI` was deprecated in LangChain 0.0.10 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import ChatOpenAI``.
+  llm = ChatOpenAI(temperature=llm_temperature, model=model_name)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:625: LangChainDeprecationWarning: The method `Chain.run` was deprecated in langchain 0.1.0 and will be removed in 1.0. Use :meth:`~invoke` instead.
+  result = qa.run(question)
+Using OpenAI embeddings
+INFO:     127.0.0.1:53230 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "POST /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53226 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:370: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  return HuggingFaceEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+Using local embeddings model: sentence-transformers/all-MiniLM-L6-v2
+INFO:     127.0.0.1:53226 - "POST /chat HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.DataException: different vector dimensions 1536 and 384
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/gurkan_indibay/source/ai_tryouts/backend/main.py", line 317, in chat
+    docs = retriever.get_relevant_documents(req.question)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_core/_api/deprecation.py", line 193, in warning_emitting_wrapper
+    return wrapped(*args, **kwargs)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_core/retrievers.py", line 415, in get_relevant_documents
+    return self.invoke(query, config, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_core/retrievers.py", line 263, in invoke
+    result = self._get_relevant_documents(
+        input, run_manager=run_manager, **kwargs_
+    )
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_core/vectorstores/base.py", line 1067, in _get_relevant_documents
+    docs = self.vectorstore.similarity_search(query, **kwargs_)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py", line 587, in similarity_search
+    return self.similarity_search_by_vector(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        embedding=embedding,
+        ^^^^^^^^^^^^^^^^^^^^
+        k=k,
+        ^^^^
+        filter=filter,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py", line 994, in similarity_search_by_vector
+    docs_and_scores = self.similarity_search_with_score_by_vector(
+        embedding=embedding, k=k, filter=filter
+    )
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py", line 635, in similarity_search_with_score_by_vector
+    results = self._query_collection(embedding=embedding, k=k, filter=filter)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py", line 972, in _query_collection
+    .all()
+     ~~~^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/orm/query.py", line 2704, in all
+    return self._iter().all()  # type: ignore
+           ~~~~~~~~~~^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/orm/query.py", line 2857, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+        params,
+        ^^^^^^^
+        execution_options={"_sa_orm_load_options": self.load_options},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+        statement, params or {}, execution_options=execution_options
+    )
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DataError: (psycopg2.errors.DataException) different vector dimensions 1536 and 384
+
+[SQL: SELECT langchain_pg_embedding.collection_id AS langchain_pg_embedding_collection_id, langchain_pg_embedding.embedding AS langchain_pg_embedding_embedding, langchain_pg_embedding.document AS langchain_pg_embedding_document, langchain_pg_embedding.cmetadata AS langchain_pg_embedding_cmetadata, langchain_pg_embedding.custom_id AS langchain_pg_embedding_custom_id, langchain_pg_embedding.uuid AS langchain_pg_embedding_uuid, langchain_pg_embedding.embedding <=> %(embedding_1)s AS distance 
+FROM langchain_pg_embedding JOIN langchain_pg_collection ON langchain_pg_embedding.collection_id = langchain_pg_collection.uuid 
+WHERE langchain_pg_embedding.collection_id = %(collection_id_1)s::UUID ORDER BY distance ASC 
+ LIMIT %(param_1)s]
+[parameters: {'embedding_1': '[-0.027464086189866066,0.054679177701473236,-0.03092360310256481,-0.08396418392658234,-0.08487119525671005,0.0002722960780374706,-0.02079031057655811 ... (7756 characters truncated) ... 01753208227455616,-0.005379555281251669,-0.03123331069946289,-0.025615515187382698,-0.025639820843935013,-0.0030666582752019167,0.018347688019275665]', 'collection_id_1': UUID('ca9c2a44-5ddb-431e-b560-0f83aa91aba3'), 'param_1': 15}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 389, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/backend/main.py", line 320, in chat
+    docs = retriever.get_documents(req.question)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/pydantic/main.py", line 1026, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'VectorStoreRetriever' object has no attribute 'get_documents'. Did you mean: 'add_documents'?
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53367 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53367 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53382 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53228 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53367 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53382 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53382 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53367 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "POST /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53367 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53382 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "POST /embeddings/delete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53447 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53449 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53451 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53447 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53449 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53449 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53447 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53447 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53449 - "GET /embeddings/status HTTP/1.1" 200 OK
+Multiple definitions in dictionary at byte 0x391287 for key /Author
+Multiple definitions in dictionary at byte 0x39128f for key /Title
+/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py:490: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  store = cls(
+Ingesting /Users/gurkan_indibay/source/ai_tryouts/citus-doc-readthedocs-io-en-latest.pdf ...
+Using OpenAI embeddings
+Using LangChain PGVector to persist vectors
+Persisted vectors to table documents_vectors in Postgres
+INFO:     127.0.0.1:53449 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53447 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53449 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53447 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "POST /embeddings/delete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "POST /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53445 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53495 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53573 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53657 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53657 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+Multiple definitions in dictionary at byte 0x391287 for key /Author
+Multiple definitions in dictionary at byte 0x39128f for key /Title
+Ingesting /Users/gurkan_indibay/source/ai_tryouts/citus-doc-readthedocs-io-en-latest.pdf ...
+Using local embeddings model: sentence-transformers/all-MiniLM-L6-v2
+Using LangChain PGVector to persist vectors
+Persisted vectors to table documents_vectors in Postgres
+INFO:     127.0.0.1:53579 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53657 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53657 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+Using local embeddings model: sentence-transformers/all-MiniLM-L6-v2
+Loading HuggingFace model: google/flan-t5-large
+INFO:     127.0.0.1:53579 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53658 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53507 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK

@@ -79,4 +79,22 @@ export const apiClient = {
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return response.json();
   },
+
+  async updateConfig(key, value) {
+    const url = `${API_BASE_URL}/config/update`;
+    console.log('Updating config:', { key, value });
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('Config update error:', response.status, errorData);
+      throw new Error(errorData.error || `API error: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('Config update response:', data);
+    return data;
+  },
 };

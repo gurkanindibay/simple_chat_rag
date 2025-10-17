@@ -22,6 +22,7 @@ from langchain.schema import Document
 # Local LLM support (optional)
 # Use a stronger Flan-T5 variant by default for better quality when running locally.
 LOCAL_LLM_MODEL = os.environ.get('LOCAL_LLM_MODEL', 'google/flan-t5-large')
+# LLM_PROVIDER will be loaded from database, env var is just the initial default
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'OPENAI')
 LLAMA_MODEL_PATH = os.environ.get('LLAMA_MODEL_PATH')
 
@@ -47,8 +48,25 @@ def _load_local_llm(model_name: str):
     except Exception:
         raise EnvironmentError("Local LLM requested but 'transformers' (and 'torch') are not installed. Add them to your environment to use a local LLM.")
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    # Check if model_name is a local path or a HuggingFace model ID
+    import os
+    if os.path.isdir(model_name):
+        # Local path exists - load from local directory
+        print(f"Loading local model from: {model_name}")
+        tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name, local_files_only=True)
+    elif model_name.startswith('/') or model_name.startswith('./'):
+        # Looks like a path but doesn't exist - show helpful error
+        raise EnvironmentError(
+            f"Local model path '{model_name}' does not exist. "
+            f"Either create this directory with a valid model, or use a HuggingFace model ID like 'google/flan-t5-base' or 'google/flan-t5-small'."
+        )
+    else:
+        # HuggingFace model ID - download if needed
+        print(f"Loading HuggingFace model: {model_name}")
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    
     _local_llm = (tokenizer, model)
     return _local_llm
 
@@ -85,9 +103,163 @@ INDEX_DIR = os.path.join(os.getcwd(), "db")
 DATABASE_URL = os.environ.get('DATABASE_URL')
 PGVECTOR_TABLE = os.environ.get('PGVECTOR_TABLE', 'documents_vectors')
 
+# Configuration management
+_config_cache = None
+
+
+def init_config_table():
+    """Create the configuration table if it doesn't exist."""
+    if DATABASE_URL is None:
+        raise EnvironmentError("DATABASE_URL not set. Can't initialize config table.")
+    
+    from sqlalchemy import create_engine, text
+    
+    engine = create_engine(DATABASE_URL)
+    
+    with engine.connect() as conn:
+        # Create config table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS app_config (
+                key VARCHAR(255) PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+        conn.commit()
+        
+        # Insert default values if they don't exist
+        conn.execute(text("""
+            INSERT INTO app_config (key, value) 
+            VALUES ('LLM_PROVIDER', :llm_provider)
+            ON CONFLICT (key) DO NOTHING
+        """), {"llm_provider": os.environ.get('LLM_PROVIDER', 'OPENAI')})
+        
+        conn.execute(text("""
+            INSERT INTO app_config (key, value) 
+            VALUES ('EMBEDDING_PROVIDER', :embedding_provider)
+            ON CONFLICT (key) DO NOTHING
+        """), {"embedding_provider": os.environ.get('EMBEDDING_PROVIDER', 'OPENAI')})
+        
+        conn.commit()
+
+
+def get_config_from_db():
+    """Get configuration from database. Returns dict with LLM_PROVIDER and EMBEDDING_PROVIDER.
+    Falls back to environment variables if database is not available.
+    """
+    global _config_cache
+    
+    if DATABASE_URL is None:
+        return {
+            "LLM_PROVIDER": os.environ.get('LLM_PROVIDER', 'OPENAI'),
+            "EMBEDDING_PROVIDER": os.environ.get('EMBEDDING_PROVIDER', 'OPENAI')
+        }
+    
+    try:
+        from sqlalchemy import create_engine, text
+        
+        # Initialize table if needed
+        init_config_table()
+        
+        engine = create_engine(DATABASE_URL)
+        
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT key, value FROM app_config 
+                WHERE key IN ('LLM_PROVIDER', 'EMBEDDING_PROVIDER')
+            """))
+            
+            config = {}
+            for row in result:
+                config[row[0]] = row[1]
+            
+            # Cache the config
+            _config_cache = config
+            
+            return config
+    except Exception as e:
+        print(f"Warning: Failed to load config from database: {e}")
+        # Fall back to environment variables
+        return {
+            "LLM_PROVIDER": os.environ.get('LLM_PROVIDER', 'OPENAI'),
+            "EMBEDDING_PROVIDER": os.environ.get('EMBEDDING_PROVIDER', 'OPENAI')
+        }
+
+
+def update_config_in_db(key: str, value: str):
+    """Update a configuration value in the database.
+    
+    Args:
+        key: Configuration key (LLM_PROVIDER or EMBEDDING_PROVIDER)
+        value: Configuration value (OPENAI or LOCAL)
+    
+    Returns:
+        True if successful, False otherwise
+    """
+    global _config_cache, LLM_PROVIDER, EMBEDDING_PROVIDER, _local_llm
+    
+    if DATABASE_URL is None:
+        raise EnvironmentError("DATABASE_URL not set. Can't update config.")
+    
+    if key not in ['LLM_PROVIDER', 'EMBEDDING_PROVIDER']:
+        raise ValueError(f"Invalid config key: {key}")
+    
+    if value not in ['OPENAI', 'LOCAL']:
+        raise ValueError(f"Invalid config value: {value}")
+    
+    try:
+        from sqlalchemy import create_engine, text
+        
+        # Initialize table if needed
+        init_config_table()
+        
+        engine = create_engine(DATABASE_URL)
+        
+        with engine.connect() as conn:
+            conn.execute(text("""
+                INSERT INTO app_config (key, value, updated_at) 
+                VALUES (:key, :value, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE 
+                SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
+            """), {"key": key, "value": value})
+            
+            conn.commit()
+        
+        # Update global variables
+        if key == 'LLM_PROVIDER':
+            LLM_PROVIDER = value
+            # Reset cached local LLM if switching providers
+            if value == 'OPENAI':
+                _local_llm = None
+        elif key == 'EMBEDDING_PROVIDER':
+            EMBEDDING_PROVIDER = value
+        
+        # Invalidate cache
+        _config_cache = None
+        
+        return True
+    except Exception as e:
+        print(f"Error updating config: {e}")
+        raise
+
+
+def load_config_from_db():
+    """Load configuration from database and update global variables."""
+    global LLM_PROVIDER, EMBEDDING_PROVIDER
+    
+    config = get_config_from_db()
+    LLM_PROVIDER = config.get('LLM_PROVIDER', 'OPENAI')
+    EMBEDDING_PROVIDER = config.get('EMBEDDING_PROVIDER', 'OPENAI')
+
 
 def ensure_index():
     os.makedirs(INDEX_DIR, exist_ok=True)
+    # Load configuration from database on startup
+    try:
+        load_config_from_db()
+    except Exception as e:
+        print(f"Warning: Could not load config from database: {e}")
+        print("Using environment variables for configuration")
 
 
 def log_ingestion(pdf_path: str):

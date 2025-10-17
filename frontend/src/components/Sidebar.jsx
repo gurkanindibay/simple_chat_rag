@@ -4,10 +4,18 @@ import { StatsCard } from './StatsCard';
 import { DeleteButton } from './DeleteButton';
 
 export function Sidebar({ config, ingested, stats, onRefresh }) {
+  const handleConfigChange = (updatedConfig) => {
+    console.log('Config updated:', updatedConfig);
+    // Refresh all data to get latest stats with new config
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar-cards">
-        <ConfigCard config={config} />
+        <ConfigCard config={config} onConfigChange={handleConfigChange} />
         <IngestedPDFsCard ingested={ingested} />
         <StatsCard stats={stats} />
       </div>
