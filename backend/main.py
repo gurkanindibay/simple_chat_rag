@@ -2,8 +2,10 @@ import os
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from pathlib import Path
 
 from backend.ingestion import ensure_index, ingest_pdf, load_retriever, chat_with_retriever
 from backend.ingestion import delete_embeddings, log_ingestion, get_ingestion_log, get_embedding_table_stats
@@ -11,7 +13,28 @@ from backend.ingestion import delete_embeddings, log_ingestion, get_ingestion_lo
 load_dotenv()
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="./static"), name="static")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Custom static file serving with proper MIME types
+class CustomStaticFiles(StaticFiles):
+    def file_response(self, full_path, stat_result, req_headers=None):
+        if full_path.endswith('.jsx'):
+            return FileResponse(full_path, media_type="text/javascript")
+        elif full_path.endswith('.css'):
+            return FileResponse(full_path, media_type="text/css")
+        return super().file_response(full_path, stat_result, req_headers)
+
+app.mount("/components", CustomStaticFiles(directory="./static/components"), name="components")
+app.mount("/styles", CustomStaticFiles(directory="./static/styles"), name="styles")
+app.mount("/static", CustomStaticFiles(directory="./static"), name="static")
 
 
 class ChatRequest(BaseModel):

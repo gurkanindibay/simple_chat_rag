@@ -9,6 +9,7 @@ sentence-transformers
 transformers
 huggingface-hub
 psycopg[binary]
+psycopg2-binary
 pgvector
 sqlalchemy
 langchain-community
