@@ -43,7 +43,7 @@ export function ChatInput({ onMessageSent, loading, onFileUploaded }) {
           title="Upload PDF"
           type="button"
         >
-          <i className="fas fa-upload"></i> Upload
+          <i className="fas fa-cloud-arrow-up"></i>
         </button>
         <input
           ref={inputRef}
@@ -58,11 +58,12 @@ export function ChatInput({ onMessageSent, loading, onFileUploaded }) {
           disabled={loading}
           className="btn-primary"
           type="submit"
+          title={loading ? "Sending..." : "Send message"}
         >
           {loading ? (
-            <i className="fas fa-spinner loading"></i>
+            <i className="fas fa-spinner fa-spin"></i>
           ) : (
-            <i className="fas fa-paper-plane"></i>
+            <i className="fas fa-arrow-up"></i>
           )}
         </button>
       </div>
