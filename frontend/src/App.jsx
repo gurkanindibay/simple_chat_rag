@@ -46,7 +46,6 @@ function App() {
         <ChatInput 
           onMessageSent={handleMessageSent} 
           loading={loading}
-          onFileUploaded={handleRefresh}
         />
       </div>
       <Sidebar

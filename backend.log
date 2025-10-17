@@ -521,3 +521,627 @@ INFO:     127.0.0.1:53698 - "GET /embeddings/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:53698 - "GET /config HTTP/1.1" 200 OK
 INFO:     127.0.0.1:53579 - "GET /ingestion-status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:53697 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/main.py', 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [35329]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [37993]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53995 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53997 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "POST /embeddings/delete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54401 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54402 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54401 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54401 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /embeddings/status HTTP/1.1" 200 OK
+Multiple definitions in dictionary at byte 0x391287 for key /Author
+Multiple definitions in dictionary at byte 0x39128f for key /Title
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:370: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  return HuggingFaceEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py:490: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  store = cls(
+Ingesting /Users/gurkan_indibay/source/ai_tryouts/citus-doc-readthedocs-io-en-latest.pdf ...
+Using local embeddings model: sentence-transformers/all-MiniLM-L6-v2
+Using LangChain PGVector to persist vectors
+Persisted vectors to table documents_vectors in Postgres
+INFO:     127.0.0.1:54396 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54401 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54439 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54439 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54400 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54396 - "OPTIONS /chat HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: This class is pending deprecation and may be removed in a future version. You can swap to using the `PGVector` implementation in `langchain_postgres`. Please read the guidelines in the doc-string of this class to follow prior to migrating as there are some differences between the implementations. See <https://github.com/langchain-ai/langchain-postgres> for details about the new implementation.
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/main.py:317: LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:`~invoke` instead.
+  docs = retriever.get_relevant_documents(req.question)
+Using local embeddings model: sentence-transformers/all-MiniLM-L6-v2
+Loading HuggingFace model: google/flan-t5-large
+INFO:     127.0.0.1:54396 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54806 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55128 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55135 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55135 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55135 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55135 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55135 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+Using local embeddings model: sentence-transformers/all-MiniLM-L6-v2
+INFO:     127.0.0.1:55135 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "POST /embeddings/delete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "OPTIONS /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "POST /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /embeddings/status HTTP/1.1" 200 OK
+Multiple definitions in dictionary at byte 0x391287 for key /Author
+Multiple definitions in dictionary at byte 0x39128f for key /Title
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:378: LangChainDeprecationWarning: The class `OpenAIEmbeddings` was deprecated in LangChain 0.0.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import OpenAIEmbeddings``.
+  return OpenAIEmbeddings()
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py:490: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  store = cls(
+Ingesting /Users/gurkan_indibay/source/ai_tryouts/citus-doc-readthedocs-io-en-latest.pdf ...
+Using OpenAI embeddings
+Using LangChain PGVector to persist vectors
+Persisted vectors to table documents_vectors in Postgres
+INFO:     127.0.0.1:55127 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55127 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+Using OpenAI embeddings
+INFO:     127.0.0.1:55273 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "POST /embeddings/delete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "POST /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /embeddings/status HTTP/1.1" 200 OK
+Multiple definitions in dictionary at byte 0x391287 for key /Author
+Multiple definitions in dictionary at byte 0x39128f for key /Title
+/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py:490: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  store = cls(
+Ingesting /Users/gurkan_indibay/source/ai_tryouts/citus-doc-readthedocs-io-en-latest.pdf ...
+Using OpenAI embeddings
+Using LangChain PGVector to persist vectors
+Persisted vectors to table documents_vectors in Postgres
+INFO:     127.0.0.1:55273 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55385 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:609: LangChainDeprecationWarning: The class `ChatOpenAI` was deprecated in LangChain 0.0.10 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import ChatOpenAI``.
+  llm = ChatOpenAI(temperature=llm_temperature, model=model_name)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:625: LangChainDeprecationWarning: The method `Chain.run` was deprecated in langchain 0.1.0 and will be removed in 1.0. Use :meth:`~invoke` instead.
+  result = qa.run(question)
+Using OpenAI embeddings
+INFO:     127.0.0.1:55281 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55273 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55395 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "POST /embeddings/delete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+Multiple definitions in dictionary at byte 0x391287 for key /Author
+Multiple definitions in dictionary at byte 0x39128f for key /Title
+/Users/gurkan_indibay/source/ai_tryouts/.venv/lib/python3.13/site-packages/langchain_community/vectorstores/pgvector.py:490: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  store = cls(
+Ingesting /Users/gurkan_indibay/source/ai_tryouts/citus-doc-readthedocs-io-en-latest.pdf ...
+Using OpenAI embeddings
+Using LangChain PGVector to persist vectors
+Persisted vectors to table documents_vectors in Postgres
+INFO:     127.0.0.1:55281 - "POST /ingest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55444 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+Using OpenAI embeddings
+INFO:     127.0.0.1:55443 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55281 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55511 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55512 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55512 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "POST /config/update HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55512 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55512 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55512 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55512 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+Using OpenAI embeddings
+Loading HuggingFace model: google/flan-t5-large
+INFO:     127.0.0.1:55512 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK

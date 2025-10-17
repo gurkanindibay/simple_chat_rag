@@ -1,4 +1,5 @@
 import { ConfigCard } from './ConfigCard';
+import { PDFUploadCard } from './PDFUploadCard';
 import { IngestedPDFsCard } from './IngestedPDFsCard';
 import { StatsCard } from './StatsCard';
 import { DeleteButton } from './DeleteButton';
@@ -16,6 +17,7 @@ export function Sidebar({ config, ingested, stats, onRefresh }) {
     <div className="sidebar">
       <div className="sidebar-cards">
         <ConfigCard config={config} onConfigChange={handleConfigChange} />
+        <PDFUploadCard onFileUploaded={onRefresh} />
         <IngestedPDFsCard ingested={ingested} />
         <StatsCard stats={stats} />
       </div>
