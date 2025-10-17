@@ -19,16 +19,16 @@ body {
 
 /* Layout */
 .container {
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - 40px);
   max-height: calc(100vh - 40px);
+  gap: 0;
 }
 
 @media (max-width: 1024px) {
   .container {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     height: auto;
   }
   .sidebar {
@@ -45,6 +45,8 @@ body {
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
 
 .chat-header {
@@ -356,11 +358,15 @@ button i {
   background: #ff6b6b;
   color: white;
   width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .btn-danger:hover:not(:disabled) {
   background: #ff5252;
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
 }
 
 .btn-danger:disabled {
@@ -371,78 +377,107 @@ button i {
 /* Sidebar */
 .sidebar {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+  background: transparent;
+  align-items: flex-start;
+}
+
+.sidebar-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  flex: 1;
+}
+
+.sidebar-actions {
+  min-width: 200px;
+  display: flex;
+  align-items: stretch;
+}
+
+.sidebar-actions .btn-danger {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Cards */
 .card {
   background: white;
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .card h3 {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: #333;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .card-icon {
   color: #667eea;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 /* Configuration */
 .config-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
+  gap: 8px;
+  padding: 6px 8px;
   background: #f9f9f9;
   border-radius: 6px;
-  margin-bottom: 8px;
-  font-size: 13px;
+  margin-bottom: 6px;
+  font-size: 12px;
 }
 
 .config-label {
-  font-weight: 500;
+  font-weight: 600;
   color: #666;
   min-width: 80px;
 }
 
 .provider-badge {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 3px 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 /* PDF List */
 .pdf-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
+  gap: 6px;
+  max-height: 120px;
   overflow-y: auto;
+  flex: 1;
 }
 
 .pdf-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
+  padding: 6px 8px;
   background: #f9f9f9;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .pdf-icon {
@@ -467,7 +502,7 @@ button i {
 /* Statistics Table */
 .stats-table {
   width: 100%;
-  font-size: 13px;
+  font-size: 11px;
   border-collapse: collapse;
 }
 
@@ -476,15 +511,16 @@ button i {
 }
 
 .stats-table th {
-  padding: 8px;
+  padding: 6px 8px;
   text-align: left;
   font-weight: 600;
   color: #333;
   border-bottom: 1px solid #ddd;
+  font-size: 10px;
 }
 
 .stats-table td {
-  padding: 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid #eee;
   color: #666;
 }

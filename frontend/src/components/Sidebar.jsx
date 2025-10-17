@@ -6,10 +6,12 @@ import { DeleteButton } from './DeleteButton';
 export function Sidebar({ config, ingested, stats, onRefresh }) {
   return (
     <div className="sidebar">
-      <ConfigCard config={config} />
-      <IngestedPDFsCard ingested={ingested} />
-      <StatsCard stats={stats} />
-      <div className="delete-section">
+      <div className="sidebar-cards">
+        <ConfigCard config={config} />
+        <IngestedPDFsCard ingested={ingested} />
+        <StatsCard stats={stats} />
+      </div>
+      <div className="sidebar-actions">
         <DeleteButton onDeleted={onRefresh} />
       </div>
     </div>
