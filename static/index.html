@@ -48,6 +48,13 @@
       .sources { margin-top: 8px; font-size: 12px; color: #666; }
       .sources ul { list-style: none; margin-top: 6px; }
       .sources li { margin: 4px 0; padding: 4px 0; border-left: 2px solid #667eea; padding-left: 8px; }
+      .sources-grouped { margin-top: 8px; font-size: 12px; }
+      .sources-grouped strong { display: block; margin-bottom: 6px; color: #666; }
+      .source-file { margin-bottom: 10px; }
+      .source-file-name { font-weight: 600; color: #667eea; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+      .source-file-name i { font-size: 11px; }
+      .source-snippets { padding-left: 12px; }
+      .source-snippet { margin: 3px 0; padding: 6px 8px; background: rgba(102, 126, 234, 0.05); border-left: 2px solid #667eea; border-radius: 2px; font-size: 11px; line-height: 1.4; color: #333; }
       .chat-input-area { border-top: 1px solid #eee; padding: 16px; background: #fafafa; display: flex; gap: 8px; }
       .input-wrapper { flex: 1; display: flex; gap: 8px; }
       input[type="text"], input[type="file"] { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
@@ -184,9 +191,28 @@
                   <div key={idx} className={`message ${msg.role}`}>
                     <div>
                       <div className="message-content" dangerouslySetInnerHTML={{ __html: msg.role === 'bot' ? marked.parse(msg.text) : msg.text.replace(/\n/g, '<br/>') }}></div>
-                      {msg.sources && msg.sources.length > 0 && (
-                        <div className="sources"><strong>📚 Sources:</strong><ul>{msg.sources.map((src, i) => (<li key={i}><em>{src.source}</em>: {src.text.substring(0, 50)}...</li>))}</ul></div>
-                      )}
+                      {msg.sources && msg.sources.length > 0 && (() => {
+                        const grouped = {};
+                        msg.sources.forEach(src => {
+                          if (!grouped[src.source]) grouped[src.source] = [];
+                          grouped[src.source].push(src.text);
+                        });
+                        return (
+                          <div className="sources-grouped">
+                            <strong>📚 Sources:</strong>
+                            {Object.entries(grouped).map(([file, snippets]) => (
+                              <div key={file} className="source-file">
+                                <div className="source-file-name"><i className="fas fa-file-pdf"></i>{file}</div>
+                                <div className="source-snippets">
+                                  {snippets.map((text, idx) => (
+                                    <div key={idx} className="source-snippet">{text.substring(0, 80)}...</div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}
