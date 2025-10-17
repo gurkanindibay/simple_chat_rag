@@ -27,8 +27,8 @@ LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'OPENAI')
 LLAMA_MODEL_PATH = os.environ.get('LLAMA_MODEL_PATH')
 
 # Local generation settings (tunable via env)
-LOCAL_LLM_TEMPERATURE = float(os.environ.get('LOCAL_LLM_TEMPERATURE', '0.2'))
-LOCAL_LLM_MAX_NEW_TOKENS = int(os.environ.get('LOCAL_LLM_MAX_NEW_TOKENS', '256'))
+LOCAL_LLM_TEMPERATURE = float(os.environ.get('LOCAL_LLM_TEMPERATURE', '0.7'))
+LOCAL_LLM_MAX_NEW_TOKENS = int(os.environ.get('LOCAL_LLM_MAX_NEW_TOKENS', '512'))
 LLAMA_TEMPERATURE = float(os.environ.get('LLAMA_TEMPERATURE', '0.2'))
 LLAMA_MAX_TOKENS = int(os.environ.get('LLAMA_MAX_TOKENS', '512'))
 OPENAI_CHAT_MODEL = os.environ.get('OPENAI_CHAT_MODEL', 'gpt-4o-mini')
@@ -516,53 +516,133 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
             # couldn't load local model; fall through to other options
             print(f"Local LLM requested but unavailable: {e}")
         else:
-            # gather context from top retrieved docs
             try:
-                docs = retriever.get_relevant_documents(question)
-            except Exception:
-                docs = retriever.get_documents(question)
+                # gather context from top retrieved docs
+                try:
+                    docs = retriever.get_relevant_documents(question)
+                except Exception:
+                    docs = retriever.get_documents(question)
 
-            # dedupe retrieved docs to avoid repeated identical chunks
-            docs = _dedupe_documents(docs)
-            context = "\n\n".join([d.page_content for d in docs[:6]])
-            # Stronger prompt: ask for a numbered, step-by-step answer, require citations
-            # with page numbers when available, and return 'I don't know.' exactly if
-            # the context does not contain the answer. This reduces hallucinations.
-            prompt_text = (
-                "You are an assistant that answers using only the provided context.\n\n"
-                "Context:\n" + context + "\n\n"
-                "Question: " + question + "\n\n"
-                "Instructions:\n"
-                "1) If the answer can be found in the context, provide a clear, numbered, step-by-step list (use numbers 1., 2., 3., ...).\n"
-                "2) For each step, cite the source(s) in parentheses with page numbers or section titles when available (for example: (source: page 12)).\n"
-                "3) If the context does NOT contain the answer, reply exactly: 'I don't know.' Do NOT make up facts.\n\n"
-                "Answer:")
+                # dedupe retrieved docs to avoid repeated identical chunks
+                docs = _dedupe_documents(docs)
+                
+                # Use more context for better answers (up to 8 docs, but limit total length)
+                context_parts = []
+                total_length = 0
+                max_context_length = 1500  # Allow more context
+                
+                for doc in docs[:8]:
+                    doc_text = doc.page_content.strip()
+                    if len(doc_text) > 100:  # Skip very short chunks
+                        if total_length + len(doc_text) > max_context_length:
+                            # Truncate if it would exceed limit
+                            remaining = max_context_length - total_length
+                            if remaining > 200:  # Only add if we have meaningful space
+                                context_parts.append(doc_text[:remaining])
+                            break
+                        context_parts.append(doc_text)
+                        total_length += len(doc_text)
+                
+                context = "\n\n".join(context_parts)
+                
+                # Improved prompt: More flexible, better instructions
+                prompt_text = f"""You are a helpful assistant that answers questions based on the provided context.
 
-            try:
+Context information:
+{context}
+
+Question: {question}
+
+Instructions:
+- Answer based ONLY on the information provided in the context above
+- If the context contains relevant information, provide a clear and accurate answer
+- If the context does not contain enough information to answer the question, say "I don't have enough information in the provided context to answer this question"
+- Be concise but comprehensive
+- Include specific details from the context when relevant
+- Do not make up or assume information not present in the context
+
+Answer:"""
+
                 import torch
                 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
                 # move model to device and set eval mode
                 model.to(device)
                 model.eval()
 
-                # T5-like models typically work well with input max lengths ~512
-                inputs = tokenizer(prompt_text, return_tensors='pt', truncation=True, max_length=512)
+                # T5-like models work better with longer input lengths for complex prompts
+                inputs = tokenizer(prompt_text, return_tensors='pt', truncation=True, max_length=1024)
                 inputs = {k: v.to(device) for k, v in inputs.items()}
 
-                # Use sampling for more fluent outputs with configurable temperature/top_p
+                # Improved generation parameters for better quality
                 outputs = model.generate(
                     **inputs,
                     max_new_tokens=LOCAL_LLM_MAX_NEW_TOKENS,
                     do_sample=True,
                     temperature=LOCAL_LLM_TEMPERATURE,
-                    top_p=0.95,
+                    top_p=0.9,
+                    top_k=50,
                     no_repeat_ngram_size=3,
                     num_return_sequences=1,
+                    early_stopping=True,
                 )
                 answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
-                return {"answer": answer}
+                
+                # Clean up the answer (remove the prompt if it gets included)
+                if answer.startswith(prompt_text):
+                    answer = answer[len(prompt_text):].strip()
+                
+                # Extract just the answer part (remove any remaining prompt artifacts)
+                if "Answer:" in answer:
+                    answer = answer.split("Answer:", 1)[1].strip()
+                
+                # Basic quality check - if answer is too short or seems like hallucination, fall back
+                if len(answer.strip()) < 10 or "I don't know" in answer.lower():
+                    print("Local LLM gave poor answer, falling back to extractive method")
+                    # Fall through to extractive answer
+                else:
+                    return {"answer": answer.strip()}
+                    
             except Exception as e:
                 print(f"Local LLM generation failed: {e}")
+                # Fall through to other methods
+    
+    # Fallback: Extractive answer from retrieved documents
+    try:
+        docs = retriever.get_relevant_documents(question)
+    except Exception:
+        docs = retriever.get_documents(question)
+    
+    docs = _dedupe_documents(docs)
+    
+    # Simple extractive approach: find sentences that contain question keywords
+    question_words = set(question.lower().split())
+    question_words = {w for w in question_words if len(w) > 3}  # Filter short words
+    
+    best_sentences = []
+    for doc in docs[:5]:  # Check top 5 docs
+        content = doc.page_content
+        sentences = content.split('. ')
+        
+        for sentence in sentences:
+            sentence_lower = sentence.lower()
+            if any(word in sentence_lower for word in question_words):
+                best_sentences.append(sentence.strip())
+                if len(best_sentences) >= 3:  # Limit to 3 best sentences
+                    break
+        if len(best_sentences) >= 3:
+            break
+    
+    if best_sentences:
+        answer = '. '.join(best_sentences)
+        if not answer.endswith('.'):
+            answer += '.'
+        return {"answer": f"Based on the document content: {answer}"}
+    
+    # Last resort: return the most relevant document chunk
+    if docs:
+        return {"answer": f"Here's the most relevant information I found: {docs[0].page_content[:500]}..."}
+    
+    return {"answer": "I couldn't find relevant information in the uploaded documents to answer your question."}
 
     # Llama (llama.cpp via llama-cpp-python) support
     if LLM_PROVIDER and LLM_PROVIDER.upper() == 'LLAMA':

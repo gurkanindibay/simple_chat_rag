@@ -1145,3 +1145,529 @@ INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
 INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55183 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55553 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [37993]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [46517]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55810 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55813 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55813 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55810 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55810 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55813 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46517]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [46724]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55847 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55850 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55850 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55847 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46724]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [46839]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55875 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55875 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55875 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55875 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55875 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55875 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46839]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [47109]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55943 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55945 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55946 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55946 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55945 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55943 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55943 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55945 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55946 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55945 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55946 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55943 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55943 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55945 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55946 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47109]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [47326]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56001 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56202 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56202 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56233 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56251 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56202 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56202 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56202 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56202 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56208 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "OPTIONS /chat HTTP/1.1" 200 OK
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:378: LangChainDeprecationWarning: The class `OpenAIEmbeddings` was deprecated in LangChain 0.0.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-openai package and should be used instead. To use it run `pip install -U :class:`~langchain-openai` and import as `from :class:`~langchain_openai import OpenAIEmbeddings``.
+  return OpenAIEmbeddings()
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: This class is pending deprecation and may be removed in a future version. You can swap to using the `PGVector` implementation in `langchain_postgres`. Please read the guidelines in the doc-string of this class to follow prior to migrating as there are some differences between the implementations. See <https://github.com/langchain-ai/langchain-postgres> for details about the new implementation.
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:463: LangChainPendingDeprecationWarning: Please use JSONB instead of JSON for metadata. This change will allow for more efficient querying that involves filtering based on metadata. Please note that filtering operators have been changed when using JSONB metadata to be prefixed with a $ sign to avoid name collisions with columns. If you're using an existing database, you will need to create a db migration for your metadata column to be JSONB and update your queries to use the new operators. 
+  vs = PGVector(collection_name=PGVECTOR_TABLE, connection_string=DATABASE_URL, embedding_function=adapter)
+/Users/gurkan_indibay/source/ai_tryouts/backend/main.py:317: LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:`~invoke` instead.
+  docs = retriever.get_relevant_documents(req.question)
+Using OpenAI embeddings
+INFO:     127.0.0.1:56322 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56322 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56005 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56004 - "GET /embeddings/status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/ingestion.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47326]
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:6: LangChainDeprecationWarning: Importing PyPDFLoader from langchain.document_loaders is deprecated. Please replace deprecated imports:
+
+>> from langchain.document_loaders import PyPDFLoader
+
+with new imports of:
+
+>> from langchain_community.document_loaders import PyPDFLoader
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.document_loaders import PyPDFLoader
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:13: LangChainDeprecationWarning: Importing PGVector from langchain.vectorstores is deprecated. Please replace deprecated imports:
+
+>> from langchain.vectorstores import PGVector
+
+with new imports of:
+
+>> from langchain_community.vectorstores import PGVector
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.vectorstores import PGVector
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:17: LangChainDeprecationWarning: Importing chat models from langchain is deprecated. Importing from langchain will no longer be supported as of langchain==0.2.0. Please import from langchain-community instead:
+
+`from langchain_community.chat_models import ChatOpenAI`.
+
+To install langchain-community run `pip install -U langchain-community`.
+  from langchain.chat_models import ChatOpenAI
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:89: LangChainDeprecationWarning: Importing OpenAIEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import OpenAIEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import OpenAIEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import OpenAIEmbeddings
+/Users/gurkan_indibay/source/ai_tryouts/backend/ingestion.py:95: LangChainDeprecationWarning: Importing HuggingFaceEmbeddings from langchain.embeddings is deprecated. Please replace deprecated imports:
+
+>> from langchain.embeddings import HuggingFaceEmbeddings
+
+with new imports of:
+
+>> from langchain_community.embeddings import HuggingFaceEmbeddings
+You can use the langchain cli to **automatically** upgrade many imports. Please see documentation here <https://python.langchain.com/docs/versions/v0_2/>
+  from langchain.embeddings import HuggingFaceEmbeddings
+INFO:     Started server process [51067]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:56457 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56460 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56461 - "GET /embeddings/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56461 - "GET /config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56460 - "GET /ingestion-status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56457 - "GET /embeddings/status HTTP/1.1" 200 OK
