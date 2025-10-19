@@ -25,13 +25,146 @@ let msalInstanceRef = null;
 
 export const setMsalInstance = (instance) => {
   msalInstanceRef = instance;
+  // Wire up window helpers when MSAL instance becomes available
+  try { _maybeExposeAuthSim(); } catch (e) { /* ignore */ }
 };
 
 // Expose msal instance on window for manual debugging in the browser console
 export const exposeMsalToWindow = () => {
   if (typeof window !== 'undefined' && msalInstanceRef) {
     window.__msal = msalInstanceRef;
+    try { _maybeExposeAuthSim(); } catch (e) { /* ignore */ }
   }
+};
+
+// --- Token refresh / expiry simulation helpers ---
+// These helpers let you force MSAL to refresh tokens or simulate expiry by
+// removing the cached access token entry. Useful for debugging refresh logic.
+let _periodicExpiryTimer = null;
+
+/**
+ * Force MSAL to acquire a fresh access token using acquireTokenSilent with forceRefresh:true.
+ * Returns the access token string (or null on failure) and logs the result.
+ */
+export const forceRefreshTokenAndLog = async () => {
+  if (!msalInstanceRef) {
+    console.warn('MSAL instance not set');
+    return null;
+  }
+  const accounts = msalInstanceRef.getAllAccounts();
+  if (accounts.length === 0) {
+    console.warn('No accounts found');
+    return null;
+  }
+
+  try {
+    const scopesToRequest = (tokenRequest && tokenRequest.scopes && tokenRequest.scopes.length)
+      ? tokenRequest.scopes
+      : ['User.Read'];
+    console.info('[auth-sim] Forcing token refresh (acquireTokenSilent forceRefresh:true) for scopes:', scopesToRequest);
+    const response = await msalInstanceRef.acquireTokenSilent({ scopes: scopesToRequest, account: accounts[0], forceRefresh: true });
+    console.info('[auth-sim] Forced refresh response:', response);
+    return response?.accessToken || null;
+  } catch (err) {
+    console.error('[auth-sim] Forced refresh failed, falling back to popup:', err);
+    try {
+      const response = await msalInstanceRef.acquireTokenPopup({ scopes: tokenRequest.scopes });
+      console.info('[auth-sim] Popup response after forced refresh failure:', response);
+      return response?.accessToken || null;
+    } catch (popupErr) {
+      console.error('[auth-sim] Popup also failed:', popupErr);
+      return null;
+    }
+  }
+};
+
+/**
+ * Remove the cached access token entry from MSAL cache so that next acquireTokenSilent
+ * will attempt to refresh it (or fall back to interactive). Works with sessionStorage cacheLocation.
+ * This simulates token expiry without waiting for the real expiry time.
+ */
+export const expireCachedAccessToken = () => {
+  if (!msalInstanceRef) return false;
+  try {
+    // MSAL stores tokens in sessionStorage/localStorage under keys containing 'msal' and account/authority
+    // We'll remove access token entries that include 'accessToken' to simulate expiry.
+    const storage = msalInstanceRef.getLogger ? window.sessionStorage : window.sessionStorage;
+    const keysToRemove = [];
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i);
+      if (!key) continue;
+      // MSAL v2 keys typically include 'accessToken' or 'accesstoken'
+      if (key.toLowerCase().includes('accesstoken') || key.toLowerCase().includes('access.token')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => {
+      console.debug('[auth-sim] Removing MSAL cache key to simulate expiry:', k);
+      storage.removeItem(k);
+    });
+    return keysToRemove.length > 0;
+  } catch (e) {
+    console.error('[auth-sim] Failed to expire cached token:', e);
+    return false;
+  }
+};
+
+/**
+ * Start a periodic job that expires cached access tokens every `intervalMs` milliseconds
+ * (default 30000 = 30s). Returns true if started, false if already running or MSAL not set.
+ */
+export const startPeriodicExpiry = (intervalMs = 30000) => {
+  if (!msalInstanceRef) {
+    console.warn('MSAL instance not set; cannot start periodic expiry');
+    return false;
+  }
+  if (_periodicExpiryTimer) {
+    console.warn('Periodic expiry already running');
+    return false;
+  }
+  console.info('[auth-sim] Starting periodic token expiry every', intervalMs, 'ms');
+  _periodicExpiryTimer = setInterval(() => {
+    const removed = expireCachedAccessToken();
+    if (removed) {
+      // After expiring cache, force a fresh token to be requested and logged (non-blocking)
+      forceRefreshTokenAndLog().catch(err => console.error('[auth-sim] forceRefresh error:', err));
+    } else {
+      console.debug('[auth-sim] No access token cache keys found to remove this interval');
+    }
+  }, intervalMs);
+  // expose simple control on window for convenience
+  if (typeof window !== 'undefined') {
+    window.__authSim = window.__authSim || {};
+    window.__authSim.startPeriodicExpiry = () => startPeriodicExpiry(intervalMs);
+    window.__authSim.stopPeriodicExpiry = stopPeriodicExpiry;
+    window.__authSim.expireCachedAccessToken = expireCachedAccessToken;
+    window.__authSim.forceRefreshTokenAndLog = forceRefreshTokenAndLog;
+  }
+  return true;
+};
+
+/**
+ * Stop the periodic expiry job if running.
+ */
+export const stopPeriodicExpiry = () => {
+  if (_periodicExpiryTimer) {
+    clearInterval(_periodicExpiryTimer);
+    _periodicExpiryTimer = null;
+    console.info('[auth-sim] Stopped periodic token expiry');
+    return true;
+  }
+  console.warn('[auth-sim] No periodic expiry was running');
+  return false;
+};
+
+// Expose helpers automatically to the window when MSAL is set
+const _maybeExposeAuthSim = () => {
+  if (typeof window === 'undefined') return;
+  window.__authSim = window.__authSim || {};
+  window.__authSim.expireCachedAccessToken = expireCachedAccessToken;
+  window.__authSim.forceRefreshTokenAndLog = forceRefreshTokenAndLog;
+  window.__authSim.startPeriodicExpiry = startPeriodicExpiry;
+  window.__authSim.stopPeriodicExpiry = stopPeriodicExpiry;
 };
 
 const getAuthToken = async () => {
