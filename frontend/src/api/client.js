@@ -27,6 +27,13 @@ export const setMsalInstance = (instance) => {
   msalInstanceRef = instance;
 };
 
+// Expose msal instance on window for manual debugging in the browser console
+export const exposeMsalToWindow = () => {
+  if (typeof window !== 'undefined' && msalInstanceRef) {
+    window.__msal = msalInstanceRef;
+  }
+};
+
 const getAuthToken = async () => {
   if (!msalInstanceRef) {
     console.warn('MSAL instance not set');
@@ -45,10 +52,15 @@ const getAuthToken = async () => {
       ? tokenRequest.scopes
       : ['User.Read'];
 
+    console.debug('[auth] msalInstanceRef:', msalInstanceRef);
+    console.debug('[auth] accounts:', accounts);
+    console.debug('[auth] scopesToRequest:', scopesToRequest);
+
     const response = await msalInstanceRef.acquireTokenSilent({
       scopes: scopesToRequest,
       account: accounts[0],
     });
+    console.debug('[auth] acquireTokenSilent response:', response);
     return response.accessToken;
   } catch (error) {
     console.error('Error acquiring token silently:', error);
@@ -57,16 +69,33 @@ const getAuthToken = async () => {
       const scopesToRequest = (tokenRequest && tokenRequest.scopes && tokenRequest.scopes.length)
         ? tokenRequest.scopes
         : ['User.Read'];
-
+      console.debug('[auth] Attempting interactive token acquisition with scopes:', scopesToRequest);
       const response = await msalInstanceRef.acquireTokenPopup({
         scopes: scopesToRequest,
       });
+      console.debug('[auth] acquireTokenPopup response:', response);
       return response.accessToken;
     } catch (interactiveError) {
       console.error('Interactive token acquisition failed:', interactiveError);
       return null;
     }
   }
+};
+
+// Helper for manual debug from browser console
+export const debugAuth = async () => {
+  if (!msalInstanceRef) return { error: 'msal instance not set' };
+  const accounts = msalInstanceRef.getAllAccounts();
+  let tokenInfo = null;
+  try {
+    const scopesToRequest = (tokenRequest && tokenRequest.scopes && tokenRequest.scopes.length)
+      ? tokenRequest.scopes
+      : ['User.Read'];
+    tokenInfo = await msalInstanceRef.acquireTokenSilent({ scopes: scopesToRequest, account: accounts[0] });
+  } catch (e) {
+    tokenInfo = { error: e?.message || String(e) };
+  }
+  return { accounts, tokenInfo };
 };
 
 const getAuthHeaders = async () => {
@@ -86,7 +115,9 @@ export const apiClient = {
   async getConfig() {
     const url = `${API_BASE_URL}/config`;
     console.log('Fetching:', url);
-    const response = await fetch(url);
+    const headers = await getAuthHeaders();
+    console.debug('[api] getConfig headers:', headers);
+    const response = await fetch(url, { headers });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return response.json();
   },
@@ -94,7 +125,9 @@ export const apiClient = {
   async getIngestionStatus() {
     const url = `${API_BASE_URL}/ingestion-status`;
     console.log('Fetching:', url);
-    const response = await fetch(url);
+    const headers = await getAuthHeaders();
+    console.debug('[api] getIngestionStatus headers:', headers);
+    const response = await fetch(url, { headers });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return response.json();
   },
@@ -102,7 +135,9 @@ export const apiClient = {
   async getEmbeddingsStatus() {
     const url = `${API_BASE_URL}/embeddings/status`;
     console.log('Fetching:', url);
-    const response = await fetch(url);
+    const headers = await getAuthHeaders();
+    console.debug('[api] getEmbeddingsStatus headers:', headers);
+    const response = await fetch(url, { headers });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return response.json();
   },

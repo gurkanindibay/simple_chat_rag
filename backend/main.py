@@ -60,7 +60,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
 
 @app.get("/config")
-async def config():
+async def config(current_user: dict = Depends(get_current_user)):
     # Return current provider configuration from database
     try:
         cfg = get_config_from_db()
@@ -111,7 +111,7 @@ async def update_config(req: ConfigUpdateRequest, current_user: dict = Depends(g
 
 
 @app.get("/info", response_class=HTMLResponse)
-async def info_page():
+async def info_page(current_user: dict = Depends(get_current_user)):
     """Serve the info page with embedded configuration, ingestion, and embedding status."""
     import json
     
@@ -300,21 +300,21 @@ async def ingest(pdf: UploadFile = File(None), current_user: dict = Depends(get_
 
 
 @app.get("/ingestion-status")
-async def ingestion_status():
-    """Return the list of ingested PDFs."""
-    return {"ingested": get_ingestion_log()}
+async def ingestion_status(current_user: dict = Depends(get_current_user)):
+  """Return the list of ingested PDFs."""
+  return {"ingested": get_ingestion_log()}
 
 
 @app.get("/embeddings/status")
-async def embeddings_status():
-    """Return the row counts for all embedding tables."""
-    try:
-        stats = get_embedding_table_stats()
-        return {"status": "ok", "tables": stats}
-    except EnvironmentError as e:
-        return JSONResponse({"error": str(e)}, status_code=400)
-    except Exception as e:
-        return JSONResponse({"error": f"Internal error: {e}"}, status_code=500)
+async def embeddings_status(current_user: dict = Depends(get_current_user)):
+  """Return the row counts for all embedding tables."""
+  try:
+    stats = get_embedding_table_stats()
+    return {"status": "ok", "tables": stats}
+  except EnvironmentError as e:
+    return JSONResponse({"error": str(e)}, status_code=400)
+  except Exception as e:
+    return JSONResponse({"error": f"Internal error: {e}"}, status_code=500)
 
 
 @app.post("/chat")

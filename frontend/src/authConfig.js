@@ -14,8 +14,9 @@
 
 export const msalConfig = {
   auth: {
-    clientId: import.meta.env.VITE_AZURE_CLIENT_ID || '',
-    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_TENANT_ID || 'common'}`,
+  // Use explicit frontend environment variables for SPA client
+  clientId: import.meta.env.VITE_AZURE_FRONTEND_CLIENT_ID || '',
+  authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_FRONTEND_TENANT_ID || 'common'}`,
     redirectUri: import.meta.env.VITE_REDIRECT_URI || window.location.origin,
   },
   cache: {
@@ -29,17 +30,31 @@ export const msalConfig = {
  * Add additional scopes as needed for your application
  */
 export const loginRequest = {
-  scopes: ['User.Read'], // Basic user profile read
+  // Keep basic profile scopes for sign-in. MSAL will request tokens using tokenRequest when calling APIs.
+  scopes: ['openid', 'profile', 'User.Read'],
 };
 
 /**
  * Scopes for token request (accessing your backend API)
+ * 
+ * NOTE: Currently using User.Read only. To call a custom backend API:
+ * 1. In Azure Portal, go to your backend app registration → Expose an API
+ * 2. Set Application ID URI (e.g., api://<backend-client-id>)
+ * 3. Add a scope (e.g., access_as_user)
+ * 4. In frontend app registration → API permissions → Add the backend scope
+ * 5. Grant admin consent
+ * 6. Update this to: scopes: [`api://<backend-client-id>/access_as_user`, 'User.Read']
  */
+// Build backend API scope from env. The frontend .env may set one of these:
+// - VITE_AZURE_BACKEND_SCOPE (full scope URI, e.g. api://<id>/access_as_user)
+// - VITE_AZURE_BACKEND_CLIENT_ID (we'll construct api://<clientId>/access_as_user)
+const envBackendScope = import.meta.env.VITE_AZURE_BACKEND_SCOPE
+const backendClientId = import.meta.env.VITE_AZURE_BACKEND_CLIENT_ID
+const defaultBackendScope = envBackendScope || (backendClientId ? `api://${backendClientId}/access_as_user` : null)
+
 export const tokenRequest = {
-  scopes: [
-    `api://${import.meta.env.VITE_AZURE_CLIENT_ID}/access_as_user`,
-    'User.Read'
-  ],
+  // Request an access token for the backend API when present; otherwise fall back to Graph scope.
+  scopes: defaultBackendScope ? [defaultBackendScope] : ['User.Read'],
 };
 
 /**
