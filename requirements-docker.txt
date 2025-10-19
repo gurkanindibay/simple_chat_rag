@@ -15,3 +15,6 @@ transformers>=4.0.0
 torch
 llama-cpp-python
 tiktoken
+# Azure OpenAI support
+langchain-openai
+azure-identity

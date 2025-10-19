@@ -99,6 +99,7 @@ export function ConfigCard({ config, onConfigChange }) {
           disabled={updating}
         >
           <option value="OPENAI">OpenAI</option>
+          <option value="AZURE_OPENAI">Azure OpenAI</option>
           <option value="LOCAL">Local</option>
         </select>
       </div>
@@ -111,6 +112,7 @@ export function ConfigCard({ config, onConfigChange }) {
           disabled={updating}
         >
           <option value="OPENAI">OpenAI</option>
+          <option value="AZURE_OPENAI">Azure OpenAI</option>
           <option value="LOCAL">Local</option>
         </select>
       </div>

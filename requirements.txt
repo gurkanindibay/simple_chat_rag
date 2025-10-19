@@ -18,3 +18,6 @@ tiktoken
 PyJWT[crypto]
 requests
 cryptography
+# Azure OpenAI support
+langchain-openai
+azure-identity

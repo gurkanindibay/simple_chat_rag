@@ -98,9 +98,9 @@ async def update_config(req: ConfigUpdateRequest, current_user: dict = Depends(r
                 status_code=400
             )
         
-        if req.value not in ['OPENAI', 'LOCAL']:
+        if req.value not in ['OPENAI', 'LOCAL', 'AZURE_OPENAI']:
             return JSONResponse(
-                {"error": f"Invalid config value: {req.value}. Must be OPENAI or LOCAL"},
+                {"error": f"Invalid config value: {req.value}. Must be OPENAI, LOCAL, or AZURE_OPENAI"},
                 status_code=400
             )
         
@@ -334,12 +334,15 @@ async def embeddings_status(current_user: dict = Depends(require_role('rag_chat_
 async def chat(req: ChatRequest, current_user: dict = Depends(require_role('rag_chat_user'))):
     # User is authenticated, you can use current_user info if needed
     retriever = load_retriever()
-    # Get retrieved docs
+    # Get retrieved docs using the new invoke method
     try:
-        docs = retriever.get_relevant_documents(req.question)
+        docs = retriever.invoke(req.question)
     except Exception:
-        # some retrievers use get_relevant_documents, others use get_documents
-        docs = retriever.get_documents(req.question)
+        # Fallback to deprecated method for older langchain versions
+        try:
+            docs = retriever.get_relevant_documents(req.question)
+        except Exception:
+            docs = []
 
     # Build a small context string with sources
     sources = []

@@ -33,6 +33,13 @@ LLAMA_TEMPERATURE = float(os.environ.get('LLAMA_TEMPERATURE', '0.2'))
 LLAMA_MAX_TOKENS = int(os.environ.get('LLAMA_MAX_TOKENS', '512'))
 OPENAI_CHAT_MODEL = os.environ.get('OPENAI_CHAT_MODEL', 'gpt-4o-mini')
 
+# Azure OpenAI configuration
+AZURE_OPENAI_ENDPOINT = os.environ.get('AZURE_OPENAI_ENDPOINT')
+AZURE_OPENAI_API_KEY = os.environ.get('AZURE_OPENAI_API_KEY')
+AZURE_OPENAI_API_VERSION = os.environ.get('AZURE_OPENAI_API_VERSION', '2024-02-15-preview')
+AZURE_OPENAI_CHAT_DEPLOYMENT = os.environ.get('AZURE_OPENAI_CHAT_DEPLOYMENT', 'gpt-4o')
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.environ.get('AZURE_OPENAI_EMBEDDING_DEPLOYMENT', 'text-embedding-ada-002')
+
 # cache for loaded local model
 _local_llm = None
 
@@ -85,6 +92,22 @@ def _dedupe_documents(docs):
         out.append(d)
     return out
 
+
+def _get_documents_from_retriever(retriever, query):
+    """Helper to get documents from retriever using the latest API.
+    Handles both new (invoke) and deprecated (get_relevant_documents) methods.
+    """
+    try:
+        # Try new method first (LangChain >= 0.1.46)
+        return retriever.invoke(query)
+    except AttributeError:
+        # Fall back to deprecated method for older versions
+        try:
+            return retriever.get_relevant_documents(query)
+        except AttributeError:
+            # Last resort: try get_documents
+            return retriever.get_documents(query)
+
 # Optional local embedding support
 from langchain.embeddings import OpenAIEmbeddings
 try:
@@ -95,6 +118,17 @@ except Exception:
         from langchain.embeddings import HuggingFaceEmbeddings
     except Exception:
         HuggingFaceEmbeddings = None
+
+# Azure OpenAI imports
+try:
+    from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+except ImportError:
+    try:
+        from langchain.chat_models import AzureChatOpenAI
+        from langchain.embeddings import AzureOpenAIEmbeddings
+    except ImportError:
+        AzureChatOpenAI = None
+        AzureOpenAIEmbeddings = None
 
 EMBEDDING_PROVIDER = os.environ.get('EMBEDDING_PROVIDER', 'OPENAI')
 LOCAL_EMBEDDING_MODEL = os.environ.get('LOCAL_EMBEDDING_MODEL', 'sentence-transformers/all-MiniLM-L6-v2')
@@ -204,7 +238,7 @@ def update_config_in_db(key: str, value: str):
     if key not in ['LLM_PROVIDER', 'EMBEDDING_PROVIDER']:
         raise ValueError(f"Invalid config key: {key}")
     
-    if value not in ['OPENAI', 'LOCAL']:
+    if value not in ['OPENAI', 'LOCAL', 'AZURE_OPENAI']:
         raise ValueError(f"Invalid config value: {value}")
     
     try:
@@ -368,12 +402,25 @@ def get_embeddings():
             raise EnvironmentError("EMBEDDING_PROVIDER=LOCAL but no HuggingFace embeddings are available. Install sentence-transformers or langchain's huggingface integration.")
         print(f"Using local embeddings model: {LOCAL_EMBEDDING_MODEL}")
         return HuggingFaceEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+    
+    if EMBEDDING_PROVIDER.upper() == 'AZURE_OPENAI':
+        if AzureOpenAIEmbeddings is None:
+            raise EnvironmentError("EMBEDDING_PROVIDER=AZURE_OPENAI but langchain-openai is not installed. Install it with: pip install langchain-openai")
+        if not AZURE_OPENAI_ENDPOINT or not AZURE_OPENAI_API_KEY:
+            raise EnvironmentError("EMBEDDING_PROVIDER=AZURE_OPENAI but AZURE_OPENAI_ENDPOINT or AZURE_OPENAI_API_KEY is not set.")
+        print(f"Using Azure OpenAI embeddings: {AZURE_OPENAI_EMBEDDING_DEPLOYMENT}")
+        return AzureOpenAIEmbeddings(
+            azure_endpoint=AZURE_OPENAI_ENDPOINT,
+            azure_deployment=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+            api_key=AZURE_OPENAI_API_KEY,
+            api_version=AZURE_OPENAI_API_VERSION
+        )
 
     # default: OPENAI
     # Validate OPENAI_API_KEY presence early to produce a clear error instead of a Pydantic validation error
     openai_key = os.environ.get('OPENAI_API_KEY')
     if not openai_key:
-        raise EnvironmentError("EMBEDDING_PROVIDER=OPENAI but OPENAI_API_KEY is not set. Set the env var or switch to EMBEDDING_PROVIDER=LOCAL.")
+        raise EnvironmentError("EMBEDDING_PROVIDER=OPENAI but OPENAI_API_KEY is not set. Set the env var or switch to EMBEDDING_PROVIDER=LOCAL or EMBEDDING_PROVIDER=AZURE_OPENAI.")
     print("Using OpenAI embeddings")
     return OpenAIEmbeddings()
 
@@ -518,10 +565,7 @@ def chat_with_retriever(question: str, retriever, llm_temperature: float = 0.0):
         else:
             try:
                 # gather context from top retrieved docs
-                try:
-                    docs = retriever.get_relevant_documents(question)
-                except Exception:
-                    docs = retriever.get_documents(question)
+                docs = _get_documents_from_retriever(retriever, question)
 
                 # dedupe retrieved docs to avoid repeated identical chunks
                 docs = _dedupe_documents(docs)
@@ -607,10 +651,7 @@ Answer:"""
                 # Fall through to other methods
     
     # Fallback: Extractive answer from retrieved documents
-    try:
-        docs = retriever.get_relevant_documents(question)
-    except Exception:
-        docs = retriever.get_documents(question)
+    docs = _get_documents_from_retriever(retriever, question)
     
     docs = _dedupe_documents(docs)
     
@@ -656,10 +697,7 @@ Answer:"""
             else:
                 try:
                     llm = Llama(model_path=LLAMA_MODEL_PATH)
-                    try:
-                        docs = retriever.get_relevant_documents(question)
-                    except Exception:
-                        docs = retriever.get_documents(question)
+                    docs = _get_documents_from_retriever(retriever, question)
                     docs = _dedupe_documents(docs)
                     context = "\n\n".join([d.page_content for d in docs[:8]])
                     prompt_text = (
@@ -680,6 +718,46 @@ Answer:"""
                     return {"answer": answer}
                 except Exception as e:
                     print(f"Llama generation failed: {e}")
+
+    # Azure OpenAI support
+    if LLM_PROVIDER and LLM_PROVIDER.upper() == 'AZURE_OPENAI':
+        if AzureChatOpenAI is None:
+            print("Azure OpenAI requested but langchain-openai is not installed. Install it with: pip install langchain-openai")
+        elif not AZURE_OPENAI_ENDPOINT or not AZURE_OPENAI_API_KEY:
+            print("Azure OpenAI requested but AZURE_OPENAI_ENDPOINT or AZURE_OPENAI_API_KEY is not set.")
+        else:
+            try:
+                print(f"Using Azure OpenAI with deployment: {AZURE_OPENAI_CHAT_DEPLOYMENT}")
+                llm = AzureChatOpenAI(
+                    azure_endpoint=AZURE_OPENAI_ENDPOINT,
+                    azure_deployment=AZURE_OPENAI_CHAT_DEPLOYMENT,
+                    api_key=AZURE_OPENAI_API_KEY,
+                    api_version=AZURE_OPENAI_API_VERSION,
+                    temperature=llm_temperature
+                )
+                template = (
+                    "You are a helpful assistant that must answer using only the retrieved documents.\n\n"
+                    "Context:\n{context}\n\n"
+                    "Question: {question}\n\n"
+                    "Instructions:\n"
+                    "1) If the answer exists in the context, provide a clear, numbered, step-by-step list (1., 2., 3., ...).\n"
+                    "2) For each step, cite the source(s) in parentheses with page numbers or section titles when available (for example: (source: page 12)).\n"
+                    "3) If the context does NOT contain the answer, reply exactly: 'I don't know.' Do NOT make up facts.\n\n"
+                    "Answer:"
+                )
+                prompt = PromptTemplate(template=template, input_variables=["context", "question"])
+                try:
+                    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, chain_type_kwargs={"prompt": prompt})
+                    result = qa.run(question)
+                    return {"answer": result}
+                except Exception as e:
+                    print(f"[ERROR] Azure OpenAI LLM failed: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Fall through to fallback
+                    pass
+            except Exception as e:
+                print(f"Azure OpenAI initialization failed: {e}")
 
     # If OpenAI is available, use ChatOpenAI for a generative answer.
     if openai_key:
@@ -712,11 +790,7 @@ Answer:"""
             pass
 
     # No LLM configured — perform a safe extractive fallback using retrieved docs.
-    try:
-        docs = retriever.get_relevant_documents(question)
-    except Exception:
-        # fallback method name
-        docs = retriever.get_documents(question)
+    docs = _get_documents_from_retriever(retriever, question)
 
     if not docs:
         return {"answer": "I don't know. No relevant documents were found."}
