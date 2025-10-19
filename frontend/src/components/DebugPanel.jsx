@@ -55,25 +55,32 @@ export function DebugPanel() {
   };
 
   return (
-    <div className="debug-panel">
+    <div className={`debug-panel ${isCollapsed ? 'debug-panel-collapsed' : ''}`}>
       <div className="debug-panel-row">
-        <button className="btn-primary" onClick={fetchClaims} disabled={loading}>
-          {loading ? 'Loading...' : '🔍 Show Claims'}
+        <button className="btn-secondary" onClick={() => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? '🔽 Debug Panel' : '🔼 Debug Panel'}
         </button>
-        <div className="debug-actions">
-          <button onClick={() => window.__authSim?.startPeriodicExpiry?.(30000)} title="Start periodic token expiry every 30s">
-            ▶️ Start 30s
-          </button>
-          <button onClick={() => window.__authSim?.stopPeriodicExpiry?.()} title="Stop periodic expiry">
-            ⏹️ Stop
-          </button>
-          <button onClick={() => { window.__authSim?.expireCachedAccessToken?.(); setClaims(null); }} title="Expire cached token now">
-            ⚡ Expire
-          </button>
-        </div>
+        {!isCollapsed && (
+          <>
+            <button className="btn-primary" onClick={fetchClaims} disabled={loading}>
+              {loading ? 'Loading...' : '🔍 Show Claims'}
+            </button>
+            <div className="debug-actions">
+              <button onClick={() => window.__authSim?.startPeriodicExpiry?.(30000)} title="Start periodic token expiry every 30s">
+                ▶️ Start 30s
+              </button>
+              <button onClick={() => window.__authSim?.stopPeriodicExpiry?.()} title="Stop periodic expiry">
+                ⏹️ Stop
+              </button>
+              <button onClick={() => { window.__authSim?.expireCachedAccessToken?.(); setClaims(null); }} title="Expire cached token now">
+                ⚡ Expire
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      {(error || claims) && (
+      {!isCollapsed && (error || claims) && (
         <div className="debug-panel-body">
           {error && <div className="debug-error">❌ Error: {error}</div>}
           {claims && <pre className="debug-claims">{JSON.stringify(claims, null, 2)}</pre>}

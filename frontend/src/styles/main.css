@@ -819,6 +819,9 @@ button i {
   max-height: 280px;
   overflow-y: auto;
 }
+.debug-panel-collapsed {
+  padding: 6px 16px;
+}
 .debug-panel-row {
   display: flex;
   gap: 12px;
