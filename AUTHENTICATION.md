@@ -295,4 +295,84 @@ Short mapping (envs & claims):
 - Backend: `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` (expected `aud`)
 
 If you'd like I can export this Mermaid diagram to a PNG and add it to `docs/` for visual documentation.
+
+---
+
+## Test: Access token refresh behavior (manual test method)
+
+This test verifies that the SPA will refresh access tokens and that the backend accepts refreshed tokens. It uses the debug helpers added to the frontend which are exposed on `window.__authSim`.
+
+Prerequisites
+- Frontend dev server running and MSAL signed-in (user logged into the SPA).
+- Backend running and able to validate access tokens.
+
+Test steps
+1. Open the browser DevTools (Console, Network, Application) while the SPA is open and signed in.
+
+2. Verify MSAL and helper availability:
+
+```js
+// should print an object with helper functions
+console.log(window.__authSim)
+// inspect MSAL accounts
+console.log(window.__msal?.getAllAccounts && window.__msal.getAllAccounts())
+```
+
+3. Force a single refresh and observe logs/network:
+
+```js
+// Force a silent refresh (acquireTokenSilent with forceRefresh:true)
+window.__authSim.forceRefreshTokenAndLog()
+```
+
+What to look for:
+- Console: you should see the auth-sim log:
+   - [auth-sim] Forcing token refresh (acquireTokenSilent forceRefresh:true) for scopes: [ ... ]
+   - MSAL non-PII logs courtesy of the project's `loggerCallback`, for example:
+      - [MSAL][Info] acquireTokenSilent called
+      - [MSAL][Info] Acquired token successfully
+   - [auth-sim] Forced refresh response: { ... } — the object printed by MSAL (it contains expiresOn and scope info; access_token itself is not printed by MSAL).
+
+- Network tab:
+   - Look for a POST request to `https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/token`.
+   - Response 200 indicates a token was returned. The request payload may include `grant_type=refresh_token` or `grant_type=authorization_code` depending on the flow state.
+
+- Application tab (Storage):
+   - If `expireCachedAccessToken()` was invoked, you should see access-token keys removed from Session Storage (or Local Storage if you use `localStorage`).
+   - After a successful refresh, MSAL will write new token entries back into storage.
+
+4. Simulate periodic expiry (30s) and observe repeated refreshes:
+
+```js
+// Start the periodic expiry+refresh every 30 seconds
+window.__authSim.startPeriodicExpiry(30000)
+
+// Stop it when done
+window.__authSim.stopPeriodicExpiry()
+```
+
+Expected behavior:
+- Every time the helper removes cached access token entries, MSAL will attempt to obtain a fresh token. You should see the same console and network indicators as in step 3 for each refresh.
+
+Troubleshooting
+- If you see the helper logs but no network request to the token endpoint:
+   - MSAL may have returned a still-valid cached token (no refresh needed). Try expiring the cache explicitly first:
+      ```js
+      window.__authSim.expireCachedAccessToken();
+      window.__authSim.forceRefreshTokenAndLog();
+      ```
+   - Some browsers may block interactive popups if MSAL falls back to `acquireTokenPopup`. Check console for popup-blocker warnings.
+
+- If MSAL logs `interaction_required` or similar:
+   - The silent acquisition failed and interactive consent is required. Use the SPA UI sign-in flow to reauthenticate.
+
+- If backend rejects refreshed tokens (401/403):
+   - Check the token's `aud` claim (decode the access token value safe in DevTools or jwt.ms) matches your backend `AZURE_CLIENT_ID` or Application ID URI.
+   - Ensure the frontend requested the backend scope `api://<BACKEND_CLIENT_ID>/access_as_user`.
+
+Notes
+- The helper targets `sessionStorage` by default because `authConfig.js` sets `cacheLocation: 'sessionStorage'`. If you use `localStorage` for persistent login, adapt the helper to check `localStorage` as well.
+- The helper uses a heuristic to find MSAL access token keys (looks for substring 'accesstoken'); if your MSAL version stores keys with a different naming pattern, inspect Storage and update the helper accordingly.
+
+If you want, I can add a small UI toggle to the app to start/stop the periodic expiry instead of using DevTools, and/or update the storage helper to look in `localStorage` as well.
 ```
