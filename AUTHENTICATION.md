@@ -249,4 +249,50 @@ AZURE_CLIENT_ID=<BACKEND_CLIENT_ID>
 ---
 
 If you want, I can also add a small script to automate creating the `.env` files from the App Registration IDs you provide. Just tell me which IDs to use and I will create the `.env` files for you (local-only change, not committed credentials).
+
+---
+
+## Appendix: Auth flow (Mermaid)
+
+The diagram below uses Mermaid's **sequenceDiagram** to show the Authorization Code + PKCE flow and where the backend validates the access token.
+
+```mermaid
+sequenceDiagram
+   participant B as Browser (SPA)
+   participant A as Microsoft Entra (Azure AD)
+   participant S as Backend (FastAPI)
+
+   B->>A: 1) GET /authorize?client_id=<FRONTEND_ID>&scope=openid profile User.Read api://<BACKEND_ID>/access_as_user&code_challenge=...
+   Note right of A: User authenticates (interactive)
+   A-->>B: 2) 302 Redirect to <REDIRECT_URI>?code=<AUTH_CODE>&state=...
+
+   B->>A: 3) POST /token {grant_type=authorization_code, code=<AUTH_CODE>, client_id=<FRONTEND_ID>, code_verifier}
+   A-->>B: 4) 200 OK { access_token, id_token, scope }
+
+   B->>S: 5) GET /config
+   Note right of B: Header: Authorization: Bearer <ACCESS_TOKEN>
+
+   S->>A: 6a) GET /.well-known/openid-configuration -> jwks_uri
+   S->>A: 6b) GET <jwks_uri> (fetch public keys)
+   A-->>S: JWKS (public keys)
+
+   S->>S: 7) Verify token
+   Note right of S: - Verify signature (JWKS)
+   Note right of S: - Verify iss == https://login.microsoftonline.com/<TENANT_ID>/v2.0
+   Note right of S: - Verify aud == <BACKEND_CLIENT_ID>
+   Note right of S: - Verify exp (not expired)
+   Note right of S: - (Optional) Verify scp contains access_as_user
+
+   alt token valid
+      S-->>B: 200 OK (resource)
+   else token invalid
+      S-->>B: 401/403 Unauthorized
+   end
+```
+
+Short mapping (envs & claims):
+- Frontend: `VITE_AZURE_FRONTEND_TENANT_ID`, `VITE_AZURE_FRONTEND_CLIENT_ID`, `VITE_AZURE_BACKEND_CLIENT_ID`, `VITE_AZURE_BACKEND_SCOPE`
+- Backend: `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` (expected `aud`)
+
+If you'd like I can export this Mermaid diagram to a PNG and add it to `docs/` for visual documentation.
 ```
