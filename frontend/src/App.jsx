@@ -5,6 +5,7 @@ import { MessagesList } from './components/MessagesList';
 import { ChatInput } from './components/ChatInput';
 import { Sidebar } from './components/Sidebar';
 import { Login } from './components/Login';
+import { DebugPanel } from './components/DebugPanel';
 import { useChatAPI } from './hooks/useChatAPI';
 import { useAppData } from './hooks/useAppData';
 import './styles/main.css';
@@ -59,6 +60,7 @@ function App() {
           onMessageSent={handleMessageSent} 
           loading={loading}
         />
+        <DebugPanel />
       </div>
       <Sidebar
         config={config}

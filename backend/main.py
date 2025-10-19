@@ -10,7 +10,8 @@ from pathlib import Path
 from backend.ingestion import ensure_index, ingest_pdf, load_retriever, chat_with_retriever
 from backend.ingestion import delete_embeddings, log_ingestion, get_ingestion_log, get_embedding_table_stats
 from backend.ingestion import get_config_from_db, update_config_in_db
-from backend.auth import get_current_user, get_optional_user, require_role
+from backend.auth import get_current_user, get_optional_user, require_role, security, verify_token
+from fastapi import Security
 
 load_dotenv()
 
@@ -57,6 +58,18 @@ async def index():
 async def get_me(current_user: dict = Depends(require_role('rag_chat_user'))):
   """Get current authenticated user information (requires rag_chat_user role)"""
   return {"user": current_user}
+
+
+@app.get("/auth/claims")
+async def auth_claims(credentials = Security(security)):
+  """Debug endpoint: return decoded token payload (claims) for the caller's access token.
+
+  This endpoint requires a valid access token but does not require the `rag_chat_user` role,
+  so you can use it to inspect the token contents (for example `roles`, `scp`, `aud`, `iss`).
+  """
+  token = credentials.credentials
+  payload = verify_token(token)
+  return {"claims": payload}
 
 
 @app.get("/config")
