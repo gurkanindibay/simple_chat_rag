@@ -10,7 +10,7 @@ from pathlib import Path
 from backend.ingestion import ensure_index, ingest_pdf, load_retriever, chat_with_retriever
 from backend.ingestion import delete_embeddings, log_ingestion, get_ingestion_log, get_embedding_table_stats
 from backend.ingestion import get_config_from_db, update_config_in_db
-from backend.auth import get_current_user, get_optional_user
+from backend.auth import get_current_user, get_optional_user, require_role
 
 load_dotenv()
 
@@ -54,13 +54,13 @@ async def index():
 
 
 @app.get("/auth/me")
-async def get_me(current_user: dict = Depends(get_current_user)):
-    """Get current authenticated user information"""
-    return {"user": current_user}
+async def get_me(current_user: dict = Depends(require_role('rag_chat_user'))):
+  """Get current authenticated user information (requires rag_chat_user role)"""
+  return {"user": current_user}
 
 
 @app.get("/config")
-async def config(current_user: dict = Depends(get_current_user)):
+async def config(current_user: dict = Depends(require_role('rag_chat_user'))):
     # Return current provider configuration from database
     try:
         cfg = get_config_from_db()
@@ -75,7 +75,7 @@ async def config(current_user: dict = Depends(get_current_user)):
 
 
 @app.post("/config/update")
-async def update_config(req: ConfigUpdateRequest, current_user: dict = Depends(get_current_user)):
+async def update_config(req: ConfigUpdateRequest, current_user: dict = Depends(require_role('rag_chat_user'))):
     """Update a configuration value (LLM_PROVIDER or EMBEDDING_PROVIDER)."""
     try:
         # Validate inputs
@@ -111,8 +111,8 @@ async def update_config(req: ConfigUpdateRequest, current_user: dict = Depends(g
 
 
 @app.get("/info", response_class=HTMLResponse)
-async def info_page(current_user: dict = Depends(get_current_user)):
-    """Serve the info page with embedded configuration, ingestion, and embedding status."""
+async def info_page(current_user: dict = Depends(require_role('rag_chat_user'))):
+    """Serve the info page with embedded configuration, ingestion, and embedding status. Requires rag_chat_user role."""
     import json
     
     # Fetch current config, ingestion data, and embedding stats on server side
@@ -264,7 +264,7 @@ async def info_page(current_user: dict = Depends(get_current_user)):
 
 
 @app.post("/embeddings/delete")
-async def embeddings_delete(current_user: dict = Depends(get_current_user)):
+async def embeddings_delete(current_user: dict = Depends(require_role('rag_chat_user'))):
     """Delete all embedding tables. Table selection is determined server-side (secure).
     
     Returns the names and counts of truncated tables.
@@ -280,7 +280,7 @@ async def embeddings_delete(current_user: dict = Depends(get_current_user)):
 
 
 @app.post("/ingest")
-async def ingest(pdf: UploadFile = File(None), current_user: dict = Depends(get_current_user)):
+async def ingest(pdf: UploadFile = File(None), current_user: dict = Depends(require_role('rag_chat_user'))):
     # User is authenticated, you can use current_user info if needed
     # If uploaded file is provided, save and ingest; otherwise ingest from PDF_PATH env
     if pdf is not None:
@@ -300,13 +300,13 @@ async def ingest(pdf: UploadFile = File(None), current_user: dict = Depends(get_
 
 
 @app.get("/ingestion-status")
-async def ingestion_status(current_user: dict = Depends(get_current_user)):
+async def ingestion_status(current_user: dict = Depends(require_role('rag_chat_user'))):
   """Return the list of ingested PDFs."""
   return {"ingested": get_ingestion_log()}
 
 
 @app.get("/embeddings/status")
-async def embeddings_status(current_user: dict = Depends(get_current_user)):
+async def embeddings_status(current_user: dict = Depends(require_role('rag_chat_user'))):
   """Return the row counts for all embedding tables."""
   try:
     stats = get_embedding_table_stats()
@@ -318,7 +318,7 @@ async def embeddings_status(current_user: dict = Depends(get_current_user)):
 
 
 @app.post("/chat")
-async def chat(req: ChatRequest, current_user: dict = Depends(get_current_user)):
+async def chat(req: ChatRequest, current_user: dict = Depends(require_role('rag_chat_user'))):
     # User is authenticated, you can use current_user info if needed
     retriever = load_retriever()
     # Get retrieved docs
