@@ -298,6 +298,61 @@ If you'd like I can export this Mermaid diagram to a PNG and add it to `docs/` f
 
 ---
 
+## Entra app registration structure — current setup and rationale
+
+This project uses two separate App Registrations in Microsoft Entra (Azure AD): one for the frontend Single-Page Application (SPA) and one for the backend API. Below is a concise description of the registration structure, the exact configuration choices made, and the reasons behind them.
+
+High-level layout
+- Frontend (SPA): `rag-chat-frontend`
+   - Platform: Single-page application (SPA)
+   - Flow: Authorization Code + PKCE (msal-browser)
+   - Redirect URI: `http://localhost:5173` (dev)
+   - Permissions: Delegated permission to the backend scope (e.g. `api://<BACKEND_ID>/access_as_user`) and Graph `User.Read`
+
+- Backend (API): `rag-chat-backend`
+   - Type: Web/API (no SPA redirect URIs required)
+   - Exposed API scope: `access_as_user` → full URI `api://<BACKEND_ID>/access_as_user`
+   - Backend validates incoming access tokens (aud, iss, signature, exp)
+
+Why two app registrations?
+- Separation of concerns: the frontend and backend have different responsibilities and security requirements. The SPA is a public client (cannot keep secrets) and uses the Authorization Code + PKCE flow. The backend is a resource server that needs to verify tokens and may optionally accept confidential client credentials for non-interactive flows.
+- Principal of least privilege: the frontend requests only the scopes it needs (frontend profile scopes + the backend's delegated scope) rather than asking for broad permissions.
+- Easier token validation: by exposing a dedicated API scope on the backend app, the backend can validate access tokens by checking the `aud` claim matches its own application id (or Application ID URI). Using Graph tokens for backend calls is incorrect and will lead to audience mismatches.
+
+Key configuration choices and reasoning
+- Authorization Code + PKCE for the SPA
+   - Reason: SSPAs are public clients — PKCE ensures authorization code interception attacks are mitigated and is the recommended approach for browser apps.
+   - Result: MSAL (msal-browser) performs a secure code exchange and caches tokens in `sessionStorage` by default.
+
+- Expose an API scope on the backend (`access_as_user`)
+   - Reason: Produces a backend-specific scope with an audience that equals the backend's app id, enabling the backend to verify tokens unambiguously.
+   - Result: Frontend requests `api://<BACKEND_ID>/access_as_user` and receives an access token whose `aud` matches the backend `AZURE_CLIENT_ID`.
+
+- Use delegated permissions (not application permissions)
+   - Reason: The app acts on behalf of a signed-in user (RAG Chat needs user context for personalization and audit), so delegated permissions are appropriate.
+   - Application permissions (app-only) are more powerful and require admin consent and client secrets; we avoid them for normal user flows.
+
+- Cache location: `sessionStorage` (frontend)
+   - Reason: sessionStorage reduces long-lived risk on shared devices and mirrors a 'session' model—closing the tab removes tokens. For local development this reduces token persistence surprises. If you need persistent login across tabs and restarts, `localStorage` can be used with the caveats around XSS risk.
+
+- Granting admin consent for dev convenience
+   - Reason: In development it's easier to grant admin consent so users aren't prompted for every new permission. For production evaluate least privilege and consent strategy carefully.
+
+Operational notes
+- Redirect URIs and SPA platform: ensure the frontend registration is using the **SPA** platform (not Web). The SPA platform configuration allows the browser-based auth flow and prevents the AADSTS9002326 cross-origin restriction when exchanging tokens.
+- Scopes and permission synchronization: after creating the backend scope, add it to the frontend app's API permissions and grant consent. This ensures the frontend can request the scope successfully.
+- Token validation on backend: the backend fetches the tenant OpenID configuration and JWKS to validate signatures. It checks issuer to `https://login.microsoftonline.com/<TENANT_ID>/v2.0` and audience to `AZURE_CLIENT_ID`.
+
+When to change this structure
+- Single-app alternative: For very small apps you could consolidate into a single app registration that represents both the SPA and the API (expose an API and also add SPA redirect URIs). Con: mixing resource and client concerns can make role/scope management and secret handling less clear.
+- Confidential backend clients: If the backend needs to perform app-only operations (no signed-in user), add a client secret/certificate to the backend app and use application permissions for those flows.
+
+Summary
+- The chosen two-app registration structure follows recommended security patterns for SPA + API designs: public client frontend with Authorization Code + PKCE, and a backend API with an explicit audience-scoped permission. This minimizes attack surface, makes token validation straightforward, and keeps permissions granular.
+
+
+---
+
 ## Test: Access token refresh behavior (manual test method)
 
 This test verifies that the SPA will refresh access tokens and that the backend accepts refreshed tokens. It uses the debug helpers added to the frontend which are exposed on `window.__authSim`.
