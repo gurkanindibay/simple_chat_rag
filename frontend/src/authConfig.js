@@ -12,16 +12,40 @@
  * 6. Create a .env file in frontend/ with these values
  */
 
+import { LogLevel } from '@azure/msal-browser'
+
 export const msalConfig = {
   auth: {
-  // Use explicit frontend environment variables for SPA client
-  clientId: import.meta.env.VITE_AZURE_FRONTEND_CLIENT_ID || '',
-  authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_FRONTEND_TENANT_ID || 'common'}`,
+    // Use explicit frontend environment variables for SPA client
+    clientId: import.meta.env.VITE_AZURE_FRONTEND_CLIENT_ID || '',
+    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_FRONTEND_TENANT_ID || 'common'}`,
     redirectUri: import.meta.env.VITE_REDIRECT_URI || window.location.origin,
   },
   cache: {
     cacheLocation: 'sessionStorage', // Use 'localStorage' for persistent login
     storeAuthStateInCookie: false, // Set to true if you have issues with IE11 or Edge
+  },
+  // MSAL system logger options - writes MSAL logs to the browser console
+  system: {
+    loggerOptions: {
+      loggerCallback: (level, message, containsPii) => {
+        if (containsPii) return; // never log PII
+        switch (level) {
+          case LogLevel.Error:
+            console.error('[MSAL][Error]', message)
+            break
+          case LogLevel.Warning:
+            console.warn('[MSAL][Warning]', message)
+            break
+          case LogLevel.Info:
+            console.info('[MSAL][Info]', message)
+            break
+          default:
+            console.debug('[MSAL][Verbose]', message)
+        }
+      },
+      piiLoggingEnabled: false,
+    },
   },
 };
 
