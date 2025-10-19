@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/msal-browser": "^4.25.1",
+    "@azure/msal-react": "^3.0.20",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "marked": "^14.1.2",
     "react": "^19.1.1",

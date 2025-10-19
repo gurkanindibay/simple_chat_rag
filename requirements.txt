@@ -14,3 +14,7 @@ pgvector
 sqlalchemy
 langchain-community
 tiktoken
+# Authentication dependencies
+PyJWT[crypto]
+requests
+cryptography

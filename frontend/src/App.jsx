@@ -1,27 +1,33 @@
 import { useEffect } from 'react';
+import { useIsAuthenticated, useMsal } from '@azure/msal-react';
 import { ChatHeader } from './components/ChatHeader';
 import { MessagesList } from './components/MessagesList';
 import { ChatInput } from './components/ChatInput';
 import { Sidebar } from './components/Sidebar';
+import { Login } from './components/Login';
 import { useChatAPI } from './hooks/useChatAPI';
 import { useAppData } from './hooks/useAppData';
 import './styles/main.css';
 
 function App() {
+  const isAuthenticated = useIsAuthenticated();
+  const { accounts } = useMsal();
   const { messages, setMessages, loading, sendMessage } = useChatAPI();
   const { config, ingested, stats, loading: dataLoading, loadData } = useAppData();
 
   useEffect(() => {
-    console.log('App mounted, loading initial data...');
-    loadData();
-    
-    const interval = setInterval(() => {
-      console.log('Refreshing data...');
+    if (isAuthenticated) {
+      console.log('App mounted, loading initial data...');
       loadData();
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [loadData]);
+      
+      const interval = setInterval(() => {
+        console.log('Refreshing data...');
+        loadData();
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [loadData, isAuthenticated]);
 
   const handleMessageSent = async (message) => {
     console.log('Message sent:', message);
@@ -38,10 +44,16 @@ function App() {
     loadData();
   };
 
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  // Show main app if authenticated
   return (
     <div className="container">
       <div className="chat-section">
-        <ChatHeader />
+        <ChatHeader userAccount={accounts[0]} />
         <MessagesList messages={messages} />
         <ChatInput 
           onMessageSent={handleMessageSent} 

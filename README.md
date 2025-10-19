@@ -5,6 +5,7 @@ A production-ready Retrieval-Augmented Generation (RAG) application that ingests
 ## 📚 Documentation
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Comprehensive architecture documentation with ASCII and Mermaid diagrams
+- **[AUTHENTICATION.md](./AUTHENTICATION.md)** - Microsoft Entra (Azure AD) authentication setup guide
 - **[README.md](./README.md)** - This file (setup and usage guide)
 
 ## 🏗️ Architecture Overview
@@ -277,6 +278,25 @@ See **[ARCHITECTURE.md](./ARCHITECTURE.md)** for detailed diagrams.
 - ✅ Database only accessible via Docker network
 - ✅ Input validation via Pydantic models
 - ✅ No user data stored beyond documents
+- ✅ **Microsoft Entra authentication support** - see [AUTHENTICATION.md](./AUTHENTICATION.md)
+
+### Authentication (Optional)
+
+The application supports Microsoft Entra (Azure AD) authentication to protect your endpoints and identify users. When enabled:
+
+- Users must sign in with their Microsoft account
+- API requests include JWT tokens for validation
+- Protected endpoints: `/chat`, `/ingest`, `/config/update`, `/embeddings/delete`
+
+**To enable authentication:**
+
+1. Set up an app registration in Azure Portal
+2. Configure environment variables in `.env` and `frontend/.env`
+3. Follow the complete guide in **[AUTHENTICATION.md](./AUTHENTICATION.md)**
+
+**To disable authentication** (for testing/development):
+
+The application can run without authentication by commenting out the `Depends(get_current_user)` dependencies in `backend/main.py`.
 
 ## 🚀 Production Considerations
 
@@ -287,6 +307,7 @@ Before deploying to production:
    - Consider dedicated vector DB (Pinecone, Weaviate)
 
 2. **Add authentication**:
+   - Microsoft Entra (Azure AD) - see [AUTHENTICATION.md](./AUTHENTICATION.md)
    - API keys for endpoints
    - User management
    - Rate limiting
@@ -401,7 +422,7 @@ Serves the web UI (index.html).
 
 Contributions welcome! Areas for improvement:
 
-- [ ] Add authentication & user management
+- [x] Add authentication & user management (Microsoft Entra support added!)
 - [ ] Implement conversation history
 - [ ] Add support for multiple document formats (Word, TXT, etc.)
 - [ ] Hybrid search (keyword + vector)

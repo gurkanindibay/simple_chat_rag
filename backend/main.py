@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +10,7 @@ from pathlib import Path
 from backend.ingestion import ensure_index, ingest_pdf, load_retriever, chat_with_retriever
 from backend.ingestion import delete_embeddings, log_ingestion, get_ingestion_log, get_embedding_table_stats
 from backend.ingestion import get_config_from_db, update_config_in_db
+from backend.auth import get_current_user, get_optional_user
 
 load_dotenv()
 
@@ -52,6 +53,12 @@ async def index():
     return FileResponse("./static/index.html")
 
 
+@app.get("/auth/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    """Get current authenticated user information"""
+    return {"user": current_user}
+
+
 @app.get("/config")
 async def config():
     # Return current provider configuration from database
@@ -68,7 +75,7 @@ async def config():
 
 
 @app.post("/config/update")
-async def update_config(req: ConfigUpdateRequest):
+async def update_config(req: ConfigUpdateRequest, current_user: dict = Depends(get_current_user)):
     """Update a configuration value (LLM_PROVIDER or EMBEDDING_PROVIDER)."""
     try:
         # Validate inputs
@@ -257,7 +264,7 @@ async def info_page():
 
 
 @app.post("/embeddings/delete")
-async def embeddings_delete():
+async def embeddings_delete(current_user: dict = Depends(get_current_user)):
     """Delete all embedding tables. Table selection is determined server-side (secure).
     
     Returns the names and counts of truncated tables.
@@ -273,7 +280,8 @@ async def embeddings_delete():
 
 
 @app.post("/ingest")
-async def ingest(pdf: UploadFile = File(None)):
+async def ingest(pdf: UploadFile = File(None), current_user: dict = Depends(get_current_user)):
+    # User is authenticated, you can use current_user info if needed
     # If uploaded file is provided, save and ingest; otherwise ingest from PDF_PATH env
     if pdf is not None:
         dest = os.path.join(os.getcwd(), pdf.filename)
@@ -310,7 +318,8 @@ async def embeddings_status():
 
 
 @app.post("/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, current_user: dict = Depends(get_current_user)):
+    # User is authenticated, you can use current_user info if needed
     retriever = load_retriever()
     # Get retrieved docs
     try:
