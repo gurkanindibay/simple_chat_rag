@@ -1,173 +1,350 @@
-# Microsoft Entra (Azure AD) Authentication Setup
+# Microsoft Entra (Azure AD) Authentication Reference
 
-This document provides a complete guide to setting up Microsoft Entra (formerly Azure Active Directory) authentication for the RAG Chat application.
+Complete guide for integrating Microsoft Entra authentication in a React SPA + FastAPI backend application.
+
+---
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [Azure Portal Setup](#azure-portal-setup)
-3. [Backend Configuration](#backend-configuration)
-4. [Frontend Configuration](#frontend-configuration)
-5. [Testing](#testing)
-6. [Troubleshooting](#troubleshooting)
 
-## Overview
+### Quick Start
+- [Prerequisites](#prerequisites)
+- [Quick Setup (5 minutes)](#quick-setup-5-minutes)
+- [Environment Variables Reference](#environment-variables-reference)
 
-The application uses Microsoft Entra for authentication with the following architecture:
-- **Frontend**: Uses MSAL (Microsoft Authentication Library) for browser-based authentication
-- **Backend**: Validates JWT tokens issued by Microsoft Entra
-- **Flow**: OAuth 2.0 Authorization Code Flow with PKCE
+### Core Concepts
+- [Architecture Overview](#architecture-overview)
+- [Authentication Flow](#authentication-flow)
+- [Why Two App Registrations?](#why-two-app-registrations)
 
-## Azure Portal Setup
+### Setup Guide
+- [Step 1: Create Backend API Registration](#step-1-create-backend-api-registration)
+- [Step 2: Create Frontend SPA Registration](#step-2-create-frontend-spa-registration)
+- [Step 3: Configure Environment Files](#step-3-configure-environment-files)
+- [Step 4: Configure App Roles (Optional)](#step-4-configure-app-roles-optional)
 
-### Step 1: Create an App Registration
+### Testing & Verification
+- [Local Testing Checklist](#local-testing-checklist)
+- [Token Validation](#token-validation)
+- [Testing Token Refresh](#testing-token-refresh)
+- [Troubleshooting Guide](#troubleshooting-guide)
 
-1. Navigate to the [Azure Portal](https://portal.azure.com)
-2. Go to **Azure Active Directory** → **App registrations** → **New registration**
-3. Fill in the following:
-   - **Name**: RAG Chat Application (or your preferred name)
-   - **Supported account types**: Choose based on your needs:
-     - Single tenant (only your organization)
-     - Multi-tenant (any organization)
-     - Personal Microsoft accounts (for testing)
-   - **Redirect URI**: 
-     - Platform: Single-page application (SPA)
-     - URI: `http://localhost:5173` (for development)
+### Reference
+- [Security Best Practices](#security-best-practices)
+- [API Reference](#api-reference)
+- [Environment Variables Quick Reference](#environment-variables-quick-reference)
+
+---
+
+## Prerequisites
+
+- Azure Active Directory (Entra) tenant
+- Admin access to create App Registrations
+- Node.js 18+ and Python 3.11+
+- Basic understanding of OAuth 2.0 and JWT tokens
+
+---
+
+## Quick Setup (5 minutes)
+
+**TL;DR:** Create two app registrations (backend API + frontend SPA), expose an API scope, configure permissions, set environment variables.
+
+1. **Backend Registration**: Create app → Expose API → Add scope `access_as_user`
+2. **Frontend Registration**: Create app → Set platform to SPA → Add API permission (backend scope)
+3. **Environment files**: Copy IDs to `.env` files (see [Environment Variables Reference](#environment-variables-reference))
+4. **Test**: Sign in via SPA, verify token, call protected API
+
+**Jump to**: [Detailed Setup Guide](#step-1-create-backend-api-registration)
+
+---
+
+## Architecture Overview
+
+### Components
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   React SPA     │         │  Microsoft      │         │  FastAPI        │
+│   (Frontend)    │◄───────►│  Entra (AAD)    │         │  (Backend)      │
+│                 │         │                 │         │                 │
+│  MSAL Browser   │         │  OAuth 2.0      │         │  JWT Validator  │
+│  Auth Code+PKCE │         │  Token Issuer   │         │  Role Enforcer  │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+```
+
+### Key Technologies
+
+- **Frontend**: MSAL (msal-browser) - OAuth 2.0 Authorization Code + PKCE flow
+- **Backend**: PyJWT + requests - Token validation and RBAC
+- **Storage**: sessionStorage (default) or localStorage for token caching
+
+### Security Model
+
+- **Public Client (SPA)**: No secrets, PKCE for security
+- **Protected Resource (API)**: Validates JWT signatures, issuer, audience, expiry
+- **Role-Based Access Control**: Optional app roles enforced at endpoint level
+
+---
+
+## Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant Browser as React SPA
+    participant Entra as Microsoft Entra
+    participant API as FastAPI Backend
+
+    Browser->>Entra: 1. Initiate login (Authorization Code + PKCE)
+    Note over Entra: User authenticates
+    Entra-->>Browser: 2. Authorization code
+    
+    Browser->>Entra: 3. Exchange code for tokens (+ code_verifier)
+    Entra-->>Browser: 4. Access token + ID token
+    
+    Browser->>API: 5. API request + Authorization: Bearer {token}
+    
+    API->>Entra: 6. Fetch JWKS (public keys)
+    Entra-->>API: Public keys
+    
+    API->>API: 7. Validate token:<br/>- Signature (JWKS)<br/>- Issuer<br/>- Audience<br/>- Expiry<br/>- Roles (optional)
+    
+    alt Valid token
+        API-->>Browser: 8a. 200 OK + Response
+    else Invalid token
+        API-->>Browser: 8b. 401/403 Unauthorized
+    end
+```
+
+**Key Claims Validated**:
+- `iss` (issuer): `https://login.microsoftonline.com/{TENANT_ID}/v2.0`
+- `aud` (audience): Backend Application ID
+- `exp` (expiry): Token not expired
+- `roles` (optional): User has required role(s)
+
+---
+
+## Why Two App Registrations?
+
+This project uses **separate registrations** for frontend (SPA) and backend (API).
+
+### Advantages
+
+| Benefit | Description |
+|---------|-------------|
+| **Clear separation of concerns** | SPA is public client (no secrets), API is protected resource |
+| **Unambiguous token audience** | Backend scope produces tokens with `aud` matching backend ID |
+| **Granular permissions** | Frontend and backend permissions managed independently |
+| **Simpler RBAC** | App roles scoped to backend, easier enterprise assignments |
+| **Better security** | Separate lifecycles, secret rotation, and policy enforcement |
+| **Future-proof** | Easy to add confidential flows (client secrets) to backend only |
+
+### Alternative: Single App Registration
+
+You *could* use one app for both SPA and API, but you'd lose:
+- Clear permission boundaries
+- Simple token validation (audience checks)
+- Independent lifecycle management
+
+**Recommendation**: Use two registrations for production apps.
+
+---
+
+## Step 1: Create Backend API Registration
+
+### 1.1 Register the Application
+
+1. Go to [Azure Portal](https://portal.azure.com) → **Azure Active Directory** → **App registrations**
+2. Click **New registration**
+3. Configure:
+   - **Name**: `rag-chat-backend` (or your app name)
+   - **Supported account types**: 
+     - *Single tenant* (recommended for internal apps)
+     - *Multi-tenant* (for SaaS apps)
+   - **Redirect URI**: Leave blank (not needed for API)
 4. Click **Register**
 
-### Step 2: Configure Authentication
+### 1.2 Record Key Values
 
-1. In your app registration, go to **Authentication**
-2. Under **Single-page application**, add redirect URIs:
-   - `http://localhost:5173` (development)
-   - Your production URL (e.g., `https://yourapp.com`)
-# Microsoft Entra (Azure AD) Authentication — Setup & Verification
+From the **Overview** page, note:
 
-This document shows the exact steps to register the frontend (SPA) and backend (API) applications in Microsoft Entra (Azure AD), configure environment variables used by this project, and verify the end-to-end authentication flow locally.
+| Field | Use as | Description |
+|-------|--------|-------------|
+| **Directory (tenant) ID** | `AZURE_TENANT_ID` | Your Azure AD tenant identifier |
+| **Application (client) ID** | `AZURE_CLIENT_ID`<br>`VITE_AZURE_BACKEND_CLIENT_ID` | Backend app identifier (used in both backend and frontend) |
 
-This repository expects the following env var conventions:
+### 1.3 Expose an API Scope
 
-- Frontend (Vite) envs (file: `frontend/.env`):
-   - `VITE_AZURE_FRONTEND_TENANT_ID` — Directory (tenant) ID
-   - `VITE_AZURE_FRONTEND_CLIENT_ID` — Frontend (SPA) Application (client) ID
-   - `VITE_REDIRECT_URI` — SPA redirect URI (development default: `http://localhost:5173`)
-   - `VITE_AZURE_BACKEND_CLIENT_ID` — Backend (API) Application (client) ID (used to build scope)
-   - `VITE_AZURE_BACKEND_SCOPE` — Full scope URI (optional). If not set, the code builds `api://<VITE_AZURE_BACKEND_CLIENT_ID>/access_as_user`
-   - `VITE_API_URL` — Backend base URL (e.g. `http://localhost:8000`)
+1. Go to **Expose an API** section
+2. Click **Set** next to Application ID URI
+   - Accept default: `api://{APPLICATION_CLIENT_ID}`
+   - Or customize: `api://rag-chat-backend`
+3. Click **Add a scope**:
+   - **Scope name**: `access_as_user`
+   - **Who can consent**: *Admins and users*
+   - **Admin consent display name**: `Access RAG Chat API`
+   - **Admin consent description**: `Allow the application to access the RAG Chat API on behalf of the signed-in user`
+   - **User consent display name**: `Access RAG Chat API`
+   - **User consent description**: `Allow the application to access the RAG Chat API on your behalf`
+   - **State**: Enabled
+4. Click **Add scope**
 
-- Backend envs (file: `.env` at repository root or process env):
-   - `AZURE_TENANT_ID` — Directory (tenant) ID (must match the frontend tenant)
-   - `AZURE_CLIENT_ID` — Backend (API) Application (client) ID
-   - (optional) `AZURE_CLIENT_SECRET` — only needed for confidential flows on the backend
-
-Everything below assumes a dev setup on `localhost` (frontend on :5173, backend on :8000).
-
----
-
-## 1) Register Backend (API) app in Azure
-
-1. In Azure Portal → Azure Active Directory → App registrations → New registration
-    - Name: `rag-chat-backend` (or your name)
-    - Supported account types: choose as needed (usually Single tenant for internal use)
-    - Redirect URI: *leave blank* for API app (not required)
-    - Click Register
-
-2. Record values from the Overview page:
-    - Directory (tenant) ID → use for `AZURE_TENANT_ID`
-    - Application (client) ID → use for `AZURE_CLIENT_ID` and `VITE_AZURE_BACKEND_CLIENT_ID`
-
-3. Expose an API (create a delegated scope):
-    - In the backend app registration → **Expose an API**
-    - If Application ID URI is empty, set it to `api://<APPLICATION_CLIENT_ID>` (Azure will suggest one)
-    - Click **Add a scope**
-       - Scope name: `access_as_user`
-       - Who can consent: `Admins and users`
-       - Admin consent display name: `Access RAG Chat API`
-       - Admin consent description: `Allow the app to access the RAG Chat API on behalf of the signed-in user.`
-       - Click **Add scope**
-    - After this, your full scope URI will be `api://<BACKEND_CLIENT_ID>/access_as_user`
-
-4. (Optional) App roles: if you want RBAC, add `App roles` in the manifest or via the App roles UI and assign users/groups in Enterprise Applications.
+**Result**: Full scope URI is `api://{BACKEND_CLIENT_ID}/access_as_user`
 
 ---
 
-## 2) Register Frontend (SPA) app in Azure
+## Step 2: Create Frontend SPA Registration
 
-1. Azure AD → App registrations → New registration
-    - Name: `rag-chat-frontend` (or your name)
-    - Supported account types: same tenant as backend (recommended)
-    - Redirect URI: Platform: Single-page application (SPA)
-       - URI: `http://localhost:5173`
-    - Click Register
+### 2.1 Register the Application
 
-2. Configure Authentication
-    - In the frontend app registration → **Authentication**
-       - Under **Platform configurations**, ensure **Single-page application** platform is configured and `http://localhost:5173` is added as a redirect URI
-       - Do NOT enable the implicit grant options; MSAL (Authorization Code + PKCE) is used.
+1. Go to **App registrations** → **New registration**
+2. Configure:
+   - **Name**: `rag-chat-frontend`
+   - **Supported account types**: Same as backend (typically *Single tenant*)
+   - **Redirect URI**: 
+     - Platform: **Single-page application (SPA)**
+     - URI: `http://localhost:5173`
+3. Click **Register**
 
-3. Configure API permissions
-    - In **API permissions** → **Add a permission** → **My APIs** → select the backend app you created
-    - Choose **Delegated permissions** → check the `access_as_user` scope you created
-    - Also add **Microsoft Graph → Delegated → User.Read** (used for display name/profile)
-    - Click **Add permissions**
-    - Click **Grant admin consent** (requires an admin) — this avoids per-user consent prompts in dev.
+### 2.2 Record Key Values
 
-4. Note values to set in frontend `.env`:
-    - Directory (tenant) ID → `VITE_AZURE_FRONTEND_TENANT_ID`
-    - Application (client) ID → `VITE_AZURE_FRONTEND_CLIENT_ID`
-    - Backend client id (from the backend app) → `VITE_AZURE_BACKEND_CLIENT_ID`
-    - Optionally, `VITE_AZURE_BACKEND_SCOPE` → `api://<BACKEND_CLIENT_ID>/access_as_user`
+From the **Overview** page:
+
+| Field | Use as | Description |
+|-------|--------|-------------|
+| **Directory (tenant) ID** | `VITE_AZURE_FRONTEND_TENANT_ID` | Must match backend tenant |
+| **Application (client) ID** | `VITE_AZURE_FRONTEND_CLIENT_ID` | Frontend app identifier |
+
+### 2.3 Configure Authentication
+
+1. Go to **Authentication**
+2. Under **Single-page application** platform:
+   - Verify `http://localhost:5173` is listed
+   - Add production URL when ready (e.g., `https://app.yourcompany.com`)
+3. **Implicit grant and hybrid flows**: Leave **unchecked** (not needed for Auth Code + PKCE)
+4. Click **Save**
+
+### 2.4 Configure API Permissions
+
+1. Go to **API permissions** → **Add a permission**
+2. **My APIs** tab → Select your backend app (`rag-chat-backend`)
+3. **Delegated permissions** → Check `access_as_user`
+4. Click **Add permissions**
+5. Add **Microsoft Graph** → **Delegated permissions** → `User.Read` (for profile info)
+6. Click **Add permissions**
+7. **Grant admin consent for {Tenant}** (requires admin rights)
+   - This avoids per-user consent prompts in development
+
+**Final permissions**:
+- `api://{BACKEND_CLIENT_ID}/access_as_user` (your API)
+- `User.Read` (Microsoft Graph)
 
 ---
 
-## 3) Configure the repository environment files
+## Step 3: Configure Environment Files
 
-- `frontend/.env` (example):
+### Frontend Environment (`frontend/.env`)
 
-```ini
-# Frontend dev
-VITE_API_URL=http://localhost:8000
-VITE_AZURE_FRONTEND_TENANT_ID=<TENANT_ID>
-VITE_AZURE_FRONTEND_CLIENT_ID=<FRONTEND_CLIENT_ID>
+```bash
+# Azure AD Configuration
+VITE_AZURE_FRONTEND_TENANT_ID=<YOUR_TENANT_ID>
+VITE_AZURE_FRONTEND_CLIENT_ID=<YOUR_FRONTEND_CLIENT_ID>
 VITE_REDIRECT_URI=http://localhost:5173
-# Backend info used by frontend to request scope
-VITE_AZURE_BACKEND_CLIENT_ID=<BACKEND_CLIENT_ID>
-VITE_AZURE_BACKEND_SCOPE=api://<BACKEND_CLIENT_ID>/access_as_user
+
+# Backend API Configuration
+VITE_AZURE_BACKEND_CLIENT_ID=<YOUR_BACKEND_CLIENT_ID>
+VITE_AZURE_BACKEND_SCOPE=api://<YOUR_BACKEND_CLIENT_ID>/access_as_user
+VITE_API_URL=http://localhost:8000
 ```
 
-- Root `.env` (backend) example:
+### Backend Environment (`.env` at repository root)
 
-```ini
-# Backend
-AZURE_TENANT_ID=<TENANT_ID>
-AZURE_CLIENT_ID=<BACKEND_CLIENT_ID>
-# Optionally AZURE_CLIENT_SECRET if you use confidential flows
+```bash
+# Azure AD Configuration
+AZURE_TENANT_ID=<YOUR_TENANT_ID>
+AZURE_CLIENT_ID=<YOUR_BACKEND_CLIENT_ID>
+
+# Optional: Only needed for confidential client flows
+# AZURE_CLIENT_SECRET=<SECRET>
 ```
 
-Notes:
-- The backend `AZURE_CLIENT_ID` must match the backend app Application ID.
-- `VITE_AZURE_BACKEND_SCOPE` must use the backend app id (not the tenant id).
+### Configuration Notes
+
+1. **Tenant ID must match** between frontend and backend
+2. **Backend Client ID** appears in both files:
+   - Backend uses it to validate token audience
+   - Frontend uses it to build the scope request
+3. **Never commit** `.env` files with real credentials to version control
+4. **Scope format**: `api://{BACKEND_CLIENT_ID}/access_as_user` or custom Application ID URI
 
 ---
 
-## 4) How the code uses these values
+## Step 4: Configure App Roles (Optional)
 
-- Frontend: `frontend/src/authConfig.js` builds `tokenRequest.scopes` from `VITE_AZURE_BACKEND_SCOPE` or `api://<VITE_AZURE_BACKEND_CLIENT_ID>/access_as_user`. It also uses `VITE_AZURE_FRONTEND_CLIENT_ID` and `VITE_AZURE_FRONTEND_TENANT_ID` for the MSAL client configuration.
-- Backend: `backend/auth.py` loads `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` and validates incoming access tokens' `issuer` and `aud` (audience) claims accordingly.
+App roles enable role-based access control (RBAC) in your application.
+
+### 4.1 Add Role to Backend App Manifest
+
+1. Go to backend app registration → **App roles**
+2. Click **Create app role**:
+   - **Display name**: `RAG Chat User`
+   - **Allowed member types**: *Users/Groups*
+   - **Value**: `rag_chat_user`
+   - **Description**: `Allows access to the RAG Chat API`
+   - **Enable this app role**: Checked
+3. Click **Apply**
+
+**Manual manifest option**: Go to **Manifest** and add to `appRoles` array:
+
+```json
+{
+  "allowedMemberTypes": ["User"],
+  "description": "Allows access to the RAG Chat API",
+  "displayName": "RAG Chat User",
+  "id": "11111111-2222-3333-4444-555555555555",
+  "isEnabled": true,
+  "value": "rag_chat_user"
+}
+```
+
+> **Note**: Generate a unique GUID for the `id` field (use `uuidgen` on macOS/Linux)
+
+### 4.2 Assign Users to Role
+
+1. Go to **Azure Active Directory** → **Enterprise applications**
+2. Search for your backend app (`rag-chat-backend`)
+3. Go to **Users and groups** → **Add user/group**
+4. Select users/groups → Select role `RAG Chat User`
+5. Click **Assign**
+
+### 4.3 Verify in Code
+
+Backend enforces roles via `require_role('rag_chat_user')` dependency:
+
+```python
+# backend/main.py
+@app.get("/config")
+async def config(current_user: dict = Depends(require_role('rag_chat_user'))):
+    # Only users with rag_chat_user role can access
+    return {"config": "..."}
+```
+
+Users without the role will receive **HTTP 403 Forbidden**.
 
 ---
 
-## 5) Local testing checklist
+## Local Testing Checklist
 
-1. Start backend (reload env) — ensure `.env` has the backend values set
+### 1. Start Backend
 
 ```bash
 cd /path/to/repo
 source .venv/bin/activate
-# ensure .env is loaded by your process manager or export env vars manually
-PYTHONPATH=$(pwd) uvicorn backend.main:app --host 0.0.0.0 --port 8000
+export PYTHONPATH=$(pwd)
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-2. Start frontend
+Verify `.env` is loaded (check logs for Azure config).
+
+### 2. Start Frontend
 
 ```bash
 cd frontend
@@ -175,309 +352,356 @@ npm install
 npm run dev
 ```
 
-3. Use the SPA to sign in. In DevTools Console run:
+Open browser to `http://localhost:5173`
 
-```js
-// show MSAL accounts
-window.__msal?.getAllAccounts().then(console.log)
-// debug token acquisition (helper provided by project)
+### 3. Sign In and Test
+
+1. Click **Sign in** button in the app
+2. Complete Microsoft authentication
+3. Open browser DevTools → Console
+4. Run diagnostic commands:
+
+```javascript
+// Check MSAL accounts
+window.__msal?.getAllAccounts()
+
+// Debug token acquisition
 debugAuth().then(console.log)
 ```
 
-4. Inspect access token
-- Decode it (jwt.ms or jwt.io) and confirm:
-   - `iss` = `https://login.microsoftonline.com/<TENANT_ID>/v2.0`
-   - `aud` = `<BACKEND_CLIENT_ID>` (or the Application ID URI expected by your backend)
-   - `scp` contains `api://<BACKEND_CLIENT_ID>/access_as_user`
+### 4. Verify Token Claims
 
-5. Make API call with token (curl example)
+Use browser console or [jwt.ms](https://jwt.ms) to decode the access token:
 
-```bash
-curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://localhost:8000/config
-```
-
-Expect HTTP 200 and valid JSON response.
-
----
-
-## 6) Troubleshooting quick guide
-
-- 401 Unauthorized
-   - Verify `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` are set in the backend environment and match the values from Azure.
-   - Verify the token `aud` claim matches `AZURE_CLIENT_ID` or the Application ID URI your backend uses.
-   - Verify the frontend requested the correct scope (`VITE_AZURE_BACKEND_SCOPE`).
-
-- Token not being sent from the SPA
-   - Verify `window.__msal` exists in the browser console
-   - Ensure `debugAuth()` returns `tokenInfo.accessToken` — if not, user is not signed in or the token request failed
-   - Check network tab: `Authorization` header should be present
-
-- AADSTS50011 / reply URL mismatch
-   - Ensure `VITE_REDIRECT_URI` matches the redirect URI registered in the SPA app registration
-
-- Cross-origin or CORS errors
-   - For local dev the backend allows all origins. For production add your frontend origin to the backend's CORS allow list
-
----
-
-## 7) Security notes
-
-- Do not commit `.env` files with secrets to version control
-- For production, use Azure Key Vault and secure secret storage
-- Restrict CORS and use HTTPS in production
-
----
-
-## 8) Quick reference — env vars to set
-
-Frontend: `frontend/.env`
-```ini
-VITE_AZURE_FRONTEND_TENANT_ID=<TENANT_ID>
-VITE_AZURE_FRONTEND_CLIENT_ID=<FRONTEND_CLIENT_ID>
-VITE_REDIRECT_URI=http://localhost:5173
-VITE_AZURE_BACKEND_CLIENT_ID=<BACKEND_CLIENT_ID>
-VITE_AZURE_BACKEND_SCOPE=api://<BACKEND_CLIENT_ID>/access_as_user
-VITE_API_URL=http://localhost:8000
-```
-
-Backend: `.env` (repo root)
-```ini
-AZURE_TENANT_ID=<TENANT_ID>
-AZURE_CLIENT_ID=<BACKEND_CLIENT_ID>
-```
-
----
-
-If you want, I can also add a small script to automate creating the `.env` files from the App Registration IDs you provide. Just tell me which IDs to use and I will create the `.env` files for you (local-only change, not committed credentials).
-
----
-
-## Appendix: Auth flow (Mermaid)
-
-The diagram below uses Mermaid's **sequenceDiagram** to show the Authorization Code + PKCE flow and where the backend validates the access token.
-
-```mermaid
-sequenceDiagram
-   participant B as Browser (SPA)
-   participant A as Microsoft Entra (Azure AD)
-   participant S as Backend (FastAPI)
-
-   B->>A: 1) GET /authorize?client_id=<FRONTEND_ID>&scope=openid profile User.Read api://<BACKEND_ID>/access_as_user&code_challenge=...
-   Note right of A: User authenticates (interactive)
-   A-->>B: 2) 302 Redirect to <REDIRECT_URI>?code=<AUTH_CODE>&state=...
-
-   B->>A: 3) POST /token {grant_type=authorization_code, code=<AUTH_CODE>, client_id=<FRONTEND_ID>, code_verifier}
-   A-->>B: 4) 200 OK { access_token, id_token, scope }
-
-   B->>S: 5) GET /config
-   Note right of B: Header: Authorization: Bearer <ACCESS_TOKEN>
-
-   S->>A: 6a) GET /.well-known/openid-configuration -> jwks_uri
-   S->>A: 6b) GET <jwks_uri> (fetch public keys)
-   A-->>S: JWKS (public keys)
-
-   S->>S: 7) Verify token
-   Note right of S: - Verify signature (JWKS)
-   Note right of S: - Verify iss == https://login.microsoftonline.com/<TENANT_ID>/v2.0
-   Note right of S: - Verify aud == <BACKEND_CLIENT_ID>
-   Note right of S: - Verify exp (not expired)
-   Note right of S: - (Optional) Verify scp contains access_as_user
-
-   alt token valid
-      S-->>B: 200 OK (resource)
-   else token invalid
-      S-->>B: 401/403 Unauthorized
-   end
-```
-
-Short mapping (envs & claims):
-- Frontend: `VITE_AZURE_FRONTEND_TENANT_ID`, `VITE_AZURE_FRONTEND_CLIENT_ID`, `VITE_AZURE_BACKEND_CLIENT_ID`, `VITE_AZURE_BACKEND_SCOPE`
-- Backend: `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` (expected `aud`)
-
-If you'd like I can export this Mermaid diagram to a PNG and add it to `docs/` for visual documentation.
-
----
-
-## Entra app registration structure — current setup and rationale
-
-This project uses two separate App Registrations in Microsoft Entra (Azure AD): one for the frontend Single-Page Application (SPA) and one for the backend API. Below is a concise description of the registration structure, the exact configuration choices made, and the reasons behind them.
-
-High-level layout
-- Frontend (SPA): `rag-chat-frontend`
-   - Platform: Single-page application (SPA)
-   - Flow: Authorization Code + PKCE (msal-browser)
-   - Redirect URI: `http://localhost:5173` (dev)
-   - Permissions: Delegated permission to the backend scope (e.g. `api://<BACKEND_ID>/access_as_user`) and Graph `User.Read`
-
-- Backend (API): `rag-chat-backend`
-   - Type: Web/API (no SPA redirect URIs required)
-   - Exposed API scope: `access_as_user` → full URI `api://<BACKEND_ID>/access_as_user`
-   - Backend validates incoming access tokens (aud, iss, signature, exp)
-
-Why two app registrations?
-- Separation of concerns: the frontend and backend have different responsibilities and security requirements. The SPA is a public client (cannot keep secrets) and uses the Authorization Code + PKCE flow. The backend is a resource server that needs to verify tokens and may optionally accept confidential client credentials for non-interactive flows.
-- Principal of least privilege: the frontend requests only the scopes it needs (frontend profile scopes + the backend's delegated scope) rather than asking for broad permissions.
-- Easier token validation: by exposing a dedicated API scope on the backend app, the backend can validate access tokens by checking the `aud` claim matches its own application id (or Application ID URI). Using Graph tokens for backend calls is incorrect and will lead to audience mismatches.
-
-Key configuration choices and reasoning
-- Authorization Code + PKCE for the SPA
-   - Reason: SSPAs are public clients — PKCE ensures authorization code interception attacks are mitigated and is the recommended approach for browser apps.
-   - Result: MSAL (msal-browser) performs a secure code exchange and caches tokens in `sessionStorage` by default.
-
-- Expose an API scope on the backend (`access_as_user`)
-   - Reason: Produces a backend-specific scope with an audience that equals the backend's app id, enabling the backend to verify tokens unambiguously.
-   - Result: Frontend requests `api://<BACKEND_ID>/access_as_user` and receives an access token whose `aud` matches the backend `AZURE_CLIENT_ID`.
-
-- Use delegated permissions (not application permissions)
-   - Reason: The app acts on behalf of a signed-in user (RAG Chat needs user context for personalization and audit), so delegated permissions are appropriate.
-   - Application permissions (app-only) are more powerful and require admin consent and client secrets; we avoid them for normal user flows.
-
-- Cache location: `sessionStorage` (frontend)
-   - Reason: sessionStorage reduces long-lived risk on shared devices and mirrors a 'session' model—closing the tab removes tokens. For local development this reduces token persistence surprises. If you need persistent login across tabs and restarts, `localStorage` can be used with the caveats around XSS risk.
-
-- Granting admin consent for dev convenience
-   - Reason: In development it's easier to grant admin consent so users aren't prompted for every new permission. For production evaluate least privilege and consent strategy carefully.
-
-Operational notes
-- Redirect URIs and SPA platform: ensure the frontend registration is using the **SPA** platform (not Web). The SPA platform configuration allows the browser-based auth flow and prevents the AADSTS9002326 cross-origin restriction when exchanging tokens.
-- Scopes and permission synchronization: after creating the backend scope, add it to the frontend app's API permissions and grant consent. This ensures the frontend can request the scope successfully.
-- Token validation on backend: the backend fetches the tenant OpenID configuration and JWKS to validate signatures. It checks issuer to `https://login.microsoftonline.com/<TENANT_ID>/v2.0` and audience to `AZURE_CLIENT_ID`.
-
-When to change this structure
-- Single-app alternative: For very small apps you could consolidate into a single app registration that represents both the SPA and the API (expose an API and also add SPA redirect URIs). Con: mixing resource and client concerns can make role/scope management and secret handling less clear.
-- Confidential backend clients: If the backend needs to perform app-only operations (no signed-in user), add a client secret/certificate to the backend app and use application permissions for those flows.
-
-Summary
-- The chosen two-app registration structure follows recommended security patterns for SPA + API designs: public client frontend with Authorization Code + PKCE, and a backend API with an explicit audience-scoped permission. This minimizes attack surface, makes token validation straightforward, and keeps permissions granular.
-
-## Current project configuration — `rag_chat_user` role
-
-This repository now enforces an application role named `rag_chat_user` for access to protected backend endpoints. Below is a concise reference you can copy into the backend app registration manifest or use to assign roles.
-
-Manifest snippet to add to backend app registration (`appRoles` array):
-
+**Expected claims**:
 ```json
 {
-   "id": "11111111-2222-3333-4444-555555555555",
-   "displayName": "RAGChatUser",
-   "value": "rag_chat_user",
-   "description": "Allows access to the RAG Chat API",
-   "allowedMemberTypes": ["User"],
-   "isEnabled": true
+  "aud": "<BACKEND_CLIENT_ID>",
+  "iss": "https://login.microsoftonline.com/<TENANT_ID>/v2.0",
+  "scp": "access_as_user",
+  "roles": ["rag_chat_user"],
+  "exp": 1234567890,
+  ...
 }
 ```
 
-Notes:
-- Replace the `id` with a generated GUID (use `uuidgen` on macOS/Linux or a GUID generator). The Azure Portal UI will create this GUID automatically if you use the App roles UI.
-- After adding the role, assign it to users or groups via **Azure AD → Enterprise applications → [your backend app] → Users and groups → Add user/group**.
+### 5. Test API Calls
 
-Backend enforcement:
-- The FastAPI backend enforces this role using the `require_role('rag_chat_user')` dependency (see `backend/auth.py` and `backend/main.py`). Protected endpoints will return HTTP 403 if the authenticated user's token does not include `"roles": ["rag_chat_user"]`.
+```bash
+# Get token from DevTools (debugAuth output)
+TOKEN="eyJ0eXAiOiJKV1QiLCJhbGc..."
 
-Testing:
-- Assign the role to a user, sign in via the SPA, acquire an access token for the backend scope (`api://<BACKEND_ID>/access_as_user`), and call a protected endpoint. Expect 200 for assigned users and 403 for users without the role.
+# Test protected endpoint
+curl -H "Authorization: Bearer $TOKEN" \
+     http://localhost:8000/config
+```
 
-### Advantages of the two-app registration approach (why we chose it)
-
-- Strong separation of concerns
-   - The SPA is modeled as a public client (no secrets) while the backend is the protected resource. This keeps responsibilities and lifecycle management separate and reduces risk of accidentally exposing secrets or confidential flows to the browser.
-
-- Clear and unambiguous token audience (aud)
-   - The backend app exposes an API scope (e.g., `api://<BACKEND_ID>/access_as_user`). Tokens requested for that scope will have an `aud` matching the backend app id, which makes token validation straightforward and reliable.
-
-- Granular permission and consent boundaries
-   - Frontend and backend permissions are managed independently. The frontend only requests delegated scopes (and Graph scopes it needs), while the backend exposes scopes and app roles that are granted/assigned explicitly. This reduces accidental over-permissioning.
-
-- Simpler RBAC and enterprise assignment
-   - App roles and user/group assignments are scoped to the backend application. Enterprise Applications assignments target the resource app directly, making role management and audit trails clearer.
-
-- Safer path to confidential/backend-only flows
-   - If the backend later needs app-only operations (daemon tasks, scheduled jobs), you can add a client secret/certificate to the backend registration without touching the public SPA registration.
-
-- Easier operations and lifecycle management
-   - Separate app registrations simplify independent rotation of secrets, admin consent, and environment-specific configs (dev/test/prod) for each side of the system.
-
-- Better alignment with security best practices
-   - Many security patterns and guidance (including Microsoft docs) recommend separating clients and resource servers. This pattern reduces the blast radius of frontend compromises and makes policy enforcement clearer.
-
+**Expected**: HTTP 200 with JSON response
 
 ---
 
-## Test: Access token refresh behavior (manual test method)
+## Token Validation
 
-This test verifies that the SPA will refresh access tokens and that the backend accepts refreshed tokens. It uses the debug helpers added to the frontend which are exposed on `window.__authSim`.
+### What the Backend Validates
 
-Prerequisites
-- Frontend dev server running and MSAL signed-in (user logged into the SPA).
-- Backend running and able to validate access tokens.
+1. **Signature** (using JWKS from Azure)
+2. **Issuer (`iss`)**: Must match `https://login.microsoftonline.com/{TENANT_ID}/v2.0`
+3. **Audience (`aud`)**: Must match backend `AZURE_CLIENT_ID`
+4. **Expiry (`exp`)**: Token must not be expired
+5. **Roles (optional)**: If using RBAC, checks `roles` claim
 
-Test steps
-1. Open the browser DevTools (Console, Network, Application) while the SPA is open and signed in.
+### Token Validation Flow
 
-2. Verify MSAL and helper availability:
+```python
+# backend/auth.py
+def verify_token(token: str) -> dict:
+    # 1. Fetch JWKS (cached)
+    jwks = get_jwks()
+    
+    # 2. Decode header and find signing key
+    unverified_header = jwt.get_unverified_header(token)
+    rsa_key = find_signing_key(jwks, unverified_header['kid'])
+    
+    # 3. Verify and decode
+    payload = jwt.decode(
+        token,
+        rsa_key,
+        algorithms=['RS256'],
+        audience=AZURE_CLIENT_ID,
+        issuer=f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/v2.0"
+    )
+    
+    return payload
+```
 
-```js
-// should print an object with helper functions
+### Common Validation Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| **Invalid signature** | Token not issued by Azure or tampered | Check tenant ID, ensure token is fresh |
+| **Invalid audience** | Token not for this API | Verify `AZURE_CLIENT_ID` matches backend app ID |
+| **Token expired** | Token lifetime exceeded (typically 1 hour) | Refresh token or re-authenticate |
+| **Invalid issuer** | Wrong tenant or v1 endpoint | Verify `AZURE_TENANT_ID`, ensure v2.0 endpoint |
+
+---
+
+## Testing Token Refresh
+
+The frontend includes debug helpers for testing token refresh behavior.
+
+### Using Debug Helpers (Browser Console)
+
+```javascript
+// 1. Check helper availability
 console.log(window.__authSim)
-// inspect MSAL accounts
-console.log(window.__msal?.getAllAccounts && window.__msal.getAllAccounts())
-```
 
-3. Force a single refresh and observe logs/network:
-
-```js
-// Force a silent refresh (acquireTokenSilent with forceRefresh:true)
+// 2. Force a token refresh
 window.__authSim.forceRefreshTokenAndLog()
-```
 
-What to look for:
-- Console: you should see the auth-sim log:
-   - [auth-sim] Forcing token refresh (acquireTokenSilent forceRefresh:true) for scopes: [ ... ]
-   - MSAL non-PII logs courtesy of the project's `loggerCallback`, for example:
-      - [MSAL][Info] acquireTokenSilent called
-      - [MSAL][Info] Acquired token successfully
-   - [auth-sim] Forced refresh response: { ... } — the object printed by MSAL (it contains expiresOn and scope info; access_token itself is not printed by MSAL).
+// 3. Expire cached token and force refresh
+window.__authSim.expireCachedAccessToken()
+window.__authSim.forceRefreshTokenAndLog()
 
-- Network tab:
-   - Look for a POST request to `https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/token`.
-   - Response 200 indicates a token was returned. The request payload may include `grant_type=refresh_token` or `grant_type=authorization_code` depending on the flow state.
-
-- Application tab (Storage):
-   - If `expireCachedAccessToken()` was invoked, you should see access-token keys removed from Session Storage (or Local Storage if you use `localStorage`).
-   - After a successful refresh, MSAL will write new token entries back into storage.
-
-4. Simulate periodic expiry (30s) and observe repeated refreshes:
-
-```js
-// Start the periodic expiry+refresh every 30 seconds
+// 4. Start automatic periodic refresh (every 30 seconds)
 window.__authSim.startPeriodicExpiry(30000)
 
-// Stop it when done
+// 5. Stop automatic refresh
 window.__authSim.stopPeriodicExpiry()
 ```
 
-Expected behavior:
-- Every time the helper removes cached access token entries, MSAL will attempt to obtain a fresh token. You should see the same console and network indicators as in step 3 for each refresh.
+### Using Debug Panel UI
 
-Troubleshooting
-- If you see the helper logs but no network request to the token endpoint:
-   - MSAL may have returned a still-valid cached token (no refresh needed). Try expiring the cache explicitly first:
-      ```js
-      window.__authSim.expireCachedAccessToken();
-      window.__authSim.forceRefreshTokenAndLog();
-      ```
-   - Some browsers may block interactive popups if MSAL falls back to `acquireTokenPopup`. Check console for popup-blocker warnings.
+The app includes a collapsible Debug Panel at the bottom of the chat interface:
 
-- If MSAL logs `interaction_required` or similar:
-   - The silent acquisition failed and interactive consent is required. Use the SPA UI sign-in flow to reauthenticate.
+1. Click **Debug Panel** to expand
+2. Click **🔍 Show Claims** to view current token claims
+3. Use buttons:
+   - **▶️ Start 30s**: Auto-expire token every 30 seconds
+   - **⏹️ Stop**: Stop auto-expiry
+   - **⚡ Expire**: Immediately expire cached token
 
-- If backend rejects refreshed tokens (401/403):
-   - Check the token's `aud` claim (decode the access token value safe in DevTools or jwt.ms) matches your backend `AZURE_CLIENT_ID` or Application ID URI.
-   - Ensure the frontend requested the backend scope `api://<BACKEND_CLIENT_ID>/access_as_user`.
+### What to Observe
 
-Notes
-- The helper targets `sessionStorage` by default because `authConfig.js` sets `cacheLocation: 'sessionStorage'`. If you use `localStorage` for persistent login, adapt the helper to check `localStorage` as well.
-- The helper uses a heuristic to find MSAL access token keys (looks for substring 'accesstoken'); if your MSAL version stores keys with a different naming pattern, inspect Storage and update the helper accordingly.
-
-If you want, I can add a small UI toggle to the app to start/stop the periodic expiry instead of using DevTools, and/or update the storage helper to look in `localStorage` as well.
+**Console logs**:
 ```
+[auth-sim] Forcing token refresh (acquireTokenSilent forceRefresh:true) for scopes: [...]
+[MSAL][Info] Acquired token successfully
+[auth-sim] Forced refresh response: { ... }
+```
+
+**Network tab**:
+- Look for POST to `https://login.microsoftonline.com/.../token`
+- Response 200 indicates successful refresh
+
+**Session Storage** (Application tab):
+- After expiry: access token keys removed
+- After refresh: new token entries appear
+
+---
+
+## Troubleshooting Guide
+
+### 401 Unauthorized
+
+**Symptoms**: API returns 401, backend logs "Invalid token"
+
+**Causes & Solutions**:
+- ❌ **Token audience mismatch**
+  - Check token `aud` claim matches backend `AZURE_CLIENT_ID`
+  - Verify frontend requests correct scope (`VITE_AZURE_BACKEND_SCOPE`)
+  
+- ❌ **Wrong tenant ID**
+  - Ensure `AZURE_TENANT_ID` matches between frontend and backend
+  - Check token `iss` claim contains correct tenant ID
+  
+- ❌ **Token expired**
+  - MSAL should auto-refresh; check console for errors
+  - Try manual refresh: `window.__authSim.forceRefreshTokenAndLog()`
+
+### 403 Forbidden
+
+**Symptoms**: API returns 403 with "Missing required role"
+
+**Causes & Solutions**:
+- ❌ **User not assigned to app role**
+  - Go to Azure AD → Enterprise Applications → Your app → Users and groups
+  - Assign user to `rag_chat_user` role
+  
+- ❌ **Role not in token**
+  - Sign out and sign in again to get fresh token with roles
+  - Verify token contains `"roles": ["rag_chat_user"]`
+
+### AADSTS50011: Redirect URI Mismatch
+
+**Symptoms**: Login fails with redirect URI error
+
+**Solutions**:
+- ✅ Verify `VITE_REDIRECT_URI` matches exactly in app registration
+- ✅ Check platform is set to **Single-page application** (not Web)
+- ✅ Ensure no trailing slash differences (`http://localhost:5173` vs `http://localhost:5173/`)
+
+### Token Not Being Sent from SPA
+
+**Symptoms**: API receives requests without Authorization header
+
+**Solutions**:
+- ✅ Check `window.__msal` exists in console
+- ✅ Run `debugAuth()` and verify `tokenInfo.accessToken` is present
+- ✅ Check Network tab for Authorization header in API requests
+- ✅ Ensure user is signed in (check `getAllAccounts()` returns accounts)
+
+### CORS Errors
+
+**Symptoms**: Browser blocks API requests with CORS error
+
+**Solutions**:
+- ✅ Backend allows all origins in development (see `backend/main.py`)
+- ✅ For production, add frontend origin to CORS allow list
+- ✅ Ensure backend is running and accessible at `VITE_API_URL`
+
+### Interactive Authentication Required
+
+**Symptoms**: MSAL throws `interaction_required` error
+
+**Solutions**:
+- ✅ User needs to sign in again (consent/session expired)
+- ✅ App will automatically prompt for popup/redirect login
+- ✅ Check browser didn't block popup window
+
+---
+
+## Security Best Practices
+
+### Environment & Secrets
+
+- ✅ **Never commit** `.env` files to version control
+- ✅ Use `.gitignore` to exclude `.env` and `.env.local`
+- ✅ Use **Azure Key Vault** or secure secret storage in production
+- ✅ Rotate client secrets regularly (if using confidential flows)
+
+### Token Storage
+
+- ✅ Default: `sessionStorage` (tokens cleared on tab close)
+- ⚠️ `localStorage`: Persistent across sessions but higher XSS risk
+- ✅ Use HttpOnly cookies for highly sensitive scenarios (requires backend token management)
+
+### CORS Configuration
+
+- ✅ Development: Allow all origins for convenience
+- ✅ Production: Whitelist only your frontend domain(s)
+- ❌ Never use `*` (allow all) in production
+
+### HTTPS Requirements
+
+- ✅ Always use HTTPS in production
+- ✅ Redirect HTTP to HTTPS
+- ✅ Use HSTS headers to enforce HTTPS
+
+### Token Validation
+
+- ✅ Always validate signature, issuer, audience, and expiry
+- ✅ Use role-based access control for sensitive endpoints
+- ✅ Log authentication failures for security monitoring
+
+### Least Privilege
+
+- ✅ Request only the scopes your app needs
+- ✅ Use delegated permissions (not application permissions) for user flows
+- ✅ Assign app roles to specific users/groups, not broadly
+
+---
+
+## API Reference
+
+### Backend Endpoints
+
+#### `GET /auth/claims`
+Returns decoded token claims for debugging.
+
+**Authentication**: Required (access token only, no role required)
+
+**Response**:
+```json
+{
+  "claims": {
+    "aud": "...",
+    "iss": "...",
+    "roles": ["rag_chat_user"],
+    ...
+  }
+}
+```
+
+#### `GET /auth/me`
+Returns current authenticated user information.
+
+**Authentication**: Required (requires `rag_chat_user` role)
+
+**Response**:
+```json
+{
+  "user": {
+    "oid": "...",
+    "name": "...",
+    "preferred_username": "...",
+    "roles": ["rag_chat_user"]
+  }
+}
+```
+
+### Frontend Debug Helpers
+
+Exposed on `window.__authSim`:
+
+| Function | Description |
+|----------|-------------|
+| `forceRefreshTokenAndLog()` | Force silent token refresh and log result |
+| `expireCachedAccessToken()` | Remove access token from session/local storage |
+| `startPeriodicExpiry(ms)` | Expire token every N milliseconds |
+| `stopPeriodicExpiry()` | Stop periodic expiry timer |
+
+**Example**:
+```javascript
+// Force refresh and inspect new token
+const response = await window.__authSim.forceRefreshTokenAndLog();
+console.log('New token expires:', response.expiresOn);
+```
+
+---
+
+## Environment Variables Quick Reference
+
+### Frontend (`frontend/.env`)
+
+| Variable | Required | Example | Description |
+|----------|----------|---------|-------------|
+| `VITE_AZURE_FRONTEND_TENANT_ID` | ✅ | `xxxxxxxx-xxxx-...` | Azure AD tenant ID |
+| `VITE_AZURE_FRONTEND_CLIENT_ID` | ✅ | `xxxxxxxx-xxxx-...` | Frontend app (client) ID |
+| `VITE_REDIRECT_URI` | ✅ | `http://localhost:5173` | OAuth redirect URI |
+| `VITE_AZURE_BACKEND_CLIENT_ID` | ✅ | `xxxxxxxx-xxxx-...` | Backend app (client) ID |
+| `VITE_AZURE_BACKEND_SCOPE` | ⚠️ | `api://xxx/access_as_user` | Full backend scope (auto-built if omitted) |
+| `VITE_API_URL` | ✅ | `http://localhost:8000` | Backend API base URL |
+
+### Backend (`.env`)
+
+| Variable | Required | Example | Description |
+|----------|----------|---------|-------------|
+| `AZURE_TENANT_ID` | ✅ | `xxxxxxxx-xxxx-...` | Azure AD tenant ID (must match frontend) |
+| `AZURE_CLIENT_ID` | ✅ | `xxxxxxxx-xxxx-...` | Backend app (client) ID |
+| `AZURE_CLIENT_SECRET` | ❌ | `secret~value` | Only for confidential client flows |
+
+---
+
+## Additional Resources
+
+- [Microsoft Entra Documentation](https://learn.microsoft.com/en-us/azure/active-directory/)
+- [MSAL.js Documentation](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview)
+- [OAuth 2.0 Authorization Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [JWT.io - Token Decoder](https://jwt.io)
+- [JWT.ms - Microsoft Token Decoder](https://jwt.ms)
+
+---
+
+**Last Updated**: 2025-10-19  
+**Maintained By**: Project Team  
+**Questions?** Open an issue in the repository
