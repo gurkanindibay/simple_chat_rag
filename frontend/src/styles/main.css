@@ -816,43 +816,107 @@ button i {
   padding: 12px 16px;
   background: #f7f7f7;
   flex-shrink: 0;
-  max-height: 280px;
-  overflow-y: auto;
+  max-height: 420px;
+  overflow: visible;
+  box-shadow: 0 6px 18px rgba(20,20,20,0.06);
+  border-radius: 8px 8px 0 0;
 }
 .debug-panel-collapsed {
   padding: 6px 16px;
 }
-.debug-panel-row {
+.debug-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.debug-panel-title {
+  font-weight: 700;
+  color: #333;
+  font-size: 13px;
+}
+.debug-panel-chevron {
+  transition: transform 220ms cubic-bezier(.2,.9,.3,1);
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.debug-panel-chevron.chev-open {
+  transform: rotate(180deg);
+}
+.debug-panel-content {
+  overflow: hidden;
+  transition: max-height 260ms ease, opacity 180ms ease, transform 220ms ease;
+  max-height: 1000px; /* large when open */
+  opacity: 1;
+  transform: translateY(0);
+}
+.debug-panel-collapsed .debug-panel-content {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.debug-panel-open {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+.debug-panel-controls {
   display: flex;
   gap: 12px;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
   flex-wrap: wrap;
 }
-.debug-panel .debug-actions {
+.debug-panel-controls .btn-primary {
+  padding: 8px 14px;
+  font-size: 13px;
+  min-width: auto;
+  min-height: auto;
+}
+.debug-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  margin-left: auto;
 }
-.debug-panel .debug-actions button {
+.debug-actions button {
   padding: 8px 10px;
   border-radius: 6px;
   min-width: auto;
   min-height: auto;
   font-size: 12px;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  transition: all 0.2s;
+}
+.debug-actions button:hover {
+  background: #e8e8e8;
+  border-color: #ccc;
+  transform: translateY(-1px);
 }
 .debug-panel-body { 
-  max-height: 180px; 
+  max-height: 220px; 
   overflow: auto;
-  margin-top: 8px;
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e6e6e6;
 }
 .debug-claims { 
-  background: #fff; 
+  background: transparent; 
   color: #000;
-  padding: 12px; 
-  border-radius: 6px; 
-  border: 1px solid #e6e6e6; 
+  padding: 0; 
+  border-radius: 0; 
+  border: none; 
   font-size: 11px;
   line-height: 1.4;
   font-family: 'Courier New', monospace;
@@ -861,7 +925,7 @@ button i {
 }
 .debug-error { 
   color: #c0392b; 
-  margin-bottom: 8px;
+  margin-bottom: 0;
   font-size: 12px;
 }
 .debug-empty { 
