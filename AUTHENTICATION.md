@@ -350,6 +350,56 @@ When to change this structure
 Summary
 - The chosen two-app registration structure follows recommended security patterns for SPA + API designs: public client frontend with Authorization Code + PKCE, and a backend API with an explicit audience-scoped permission. This minimizes attack surface, makes token validation straightforward, and keeps permissions granular.
 
+## Current project configuration — `rag_chat_user` role
+
+This repository now enforces an application role named `rag_chat_user` for access to protected backend endpoints. Below is a concise reference you can copy into the backend app registration manifest or use to assign roles.
+
+Manifest snippet to add to backend app registration (`appRoles` array):
+
+```json
+{
+   "id": "11111111-2222-3333-4444-555555555555",
+   "displayName": "RAGChatUser",
+   "value": "rag_chat_user",
+   "description": "Allows access to the RAG Chat API",
+   "allowedMemberTypes": ["User"],
+   "isEnabled": true
+}
+```
+
+Notes:
+- Replace the `id` with a generated GUID (use `uuidgen` on macOS/Linux or a GUID generator). The Azure Portal UI will create this GUID automatically if you use the App roles UI.
+- After adding the role, assign it to users or groups via **Azure AD → Enterprise applications → [your backend app] → Users and groups → Add user/group**.
+
+Backend enforcement:
+- The FastAPI backend enforces this role using the `require_role('rag_chat_user')` dependency (see `backend/auth.py` and `backend/main.py`). Protected endpoints will return HTTP 403 if the authenticated user's token does not include `"roles": ["rag_chat_user"]`.
+
+Testing:
+- Assign the role to a user, sign in via the SPA, acquire an access token for the backend scope (`api://<BACKEND_ID>/access_as_user`), and call a protected endpoint. Expect 200 for assigned users and 403 for users without the role.
+
+### Advantages of the two-app registration approach (why we chose it)
+
+- Strong separation of concerns
+   - The SPA is modeled as a public client (no secrets) while the backend is the protected resource. This keeps responsibilities and lifecycle management separate and reduces risk of accidentally exposing secrets or confidential flows to the browser.
+
+- Clear and unambiguous token audience (aud)
+   - The backend app exposes an API scope (e.g., `api://<BACKEND_ID>/access_as_user`). Tokens requested for that scope will have an `aud` matching the backend app id, which makes token validation straightforward and reliable.
+
+- Granular permission and consent boundaries
+   - Frontend and backend permissions are managed independently. The frontend only requests delegated scopes (and Graph scopes it needs), while the backend exposes scopes and app roles that are granted/assigned explicitly. This reduces accidental over-permissioning.
+
+- Simpler RBAC and enterprise assignment
+   - App roles and user/group assignments are scoped to the backend application. Enterprise Applications assignments target the resource app directly, making role management and audit trails clearer.
+
+- Safer path to confidential/backend-only flows
+   - If the backend later needs app-only operations (daemon tasks, scheduled jobs), you can add a client secret/certificate to the backend registration without touching the public SPA registration.
+
+- Easier operations and lifecycle management
+   - Separate app registrations simplify independent rotation of secrets, admin consent, and environment-specific configs (dev/test/prod) for each side of the system.
+
+- Better alignment with security best practices
+   - Many security patterns and guidance (including Microsoft docs) recommend separating clients and resource servers. This pattern reduces the blast radius of frontend compromises and makes policy enforcement clearer.
+
 
 ---
 
