@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useMsal } from '@azure/msal-react';
-import { setGlobalLogoutFlags } from '../utils/logout';
 
 /**
  * Custom hook for handling logout using MSAL's official logout APIs.
@@ -12,7 +11,7 @@ import { setGlobalLogoutFlags } from '../utils/logout';
  * 1. Clear the MSAL cache (tokens, accounts, etc.)
  * 2. Clear the session on the identity server
  * 
- * No manual cache clearing is needed!
+ * No manual cache clearing or custom flags needed!
  * 
  * @param {Object} options - Configuration options
  * @param {string} options.logoutType - Type of logout: 'popup' or 'redirect' (default: 'popup')
@@ -37,14 +36,10 @@ export function useLogout(options = {}) {
     setIsLoggingOut(true);
     
     try {
-      // Step 1: Set global logout flags for cross-app coordination
-      // NOTE: This is a custom feature, not provided by MSAL
-      setGlobalLogoutFlags();
-      
-      // Step 2: Get the current account for proper logout
+      // Get the current account for proper logout
       const currentAccount = instance.getActiveAccount();
       
-      // Step 3: Perform MSAL logout using official API
+      // Perform MSAL logout using official API
       // This automatically clears cache and server session
       const logoutRequest = {
         account: currentAccount, // Important: ensures proper account cleanup
@@ -68,8 +63,8 @@ export function useLogout(options = {}) {
     } catch (error) {
       console.error('[useLogout] Logout error:', error);
       
-      // Even if logout fails, try to clean up local state
-      console.warn('[useLogout] Logout failed, but local cleanup may have occurred');
+      // Even if logout fails, local cleanup may have occurred
+      console.warn('[useLogout] Logout failed, but MSAL cleanup may have occurred');
       throw error;
     } finally {
       setIsLoggingOut(false);

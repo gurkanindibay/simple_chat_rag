@@ -15,7 +15,6 @@ export const Login = () => {
             instance.setActiveAccount(response.account);
             console.log('[Login] Active account set to:', response.account.username);
           }
-          try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
           return response;
         })
         .catch((error) => {

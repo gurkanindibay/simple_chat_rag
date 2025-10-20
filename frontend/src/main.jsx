@@ -59,7 +59,6 @@ const initAndRender = async () => {
     if (redirectResult && redirectResult.account) {
       console.log('[MSAL Init] ✓ Login successful via redirect, account:', redirectResult.account.username);
       msalInstance.setActiveAccount(redirectResult.account);
-      try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
     }
 
     // Check if there's cached account data before calling getAllAccounts
@@ -91,7 +90,7 @@ const initAndRender = async () => {
     }
     
     if (accounts && accounts.length > 0) {
-      console.log('[MSAL Init] ✓ Found', accounts.length, 'account(s), setting app_logged_in flag');
+      console.log('[MSAL Init] ✓ Found', accounts.length, 'account(s)');
       // Set the active account so MSAL knows which account to use
       if (!msalInstance.getActiveAccount()) {
         msalInstance.setActiveAccount(accounts[0]);
@@ -99,37 +98,8 @@ const initAndRender = async () => {
       } else {
         console.log('[MSAL Init] Active account already set to:', msalInstance.getActiveAccount().username);
       }
-      try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
     } else {
-      // If previously logged in, attempt silent SSO restoration
-      const tried = localStorage.getItem('app_logged_in');
-      console.log('[MSAL Init] No accounts found. app_logged_in flag:', tried);
-      
-      if (tried) {
-        try {
-          console.log('[MSAL Init] Attempting ssoSilent with basic scopes...');
-          if (typeof msalInstance.ssoSilent === 'function') {
-            // ssoSilent needs a proper request object with scopes
-            await msalInstance.ssoSilent({ scopes: ['openid', 'profile'] });
-          } else {
-            console.log('[MSAL Init] ssoSilent not available');
-          }
-          const newAccounts = msalInstance.getAllAccounts();
-          console.log('[MSAL Init] Accounts after ssoSilent:', newAccounts);
-          
-          if (newAccounts && newAccounts.length > 0) {
-            msalInstance.setActiveAccount(newAccounts[0]);
-            console.log('[MSAL Init] Active account restored via ssoSilent:', newAccounts[0].username);
-            try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
-          } else {
-            console.log('[MSAL Init] No accounts after ssoSilent, clearing flag');
-            try { localStorage.removeItem('app_logged_in'); } catch (e) { /* ignore */ }
-          }
-        } catch (e) {
-          console.warn('[MSAL Init] ssoSilent failed (this is normal if you need to re-login):', e.message || e);
-          try { localStorage.removeItem('app_logged_in'); } catch (er) { /* ignore */ }
-        }
-      }
+      console.log('[MSAL Init] No accounts found in cache');
     }
   } catch (err) {
     console.error('[MSAL Init] Error during initialization:', err);
