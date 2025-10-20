@@ -652,7 +652,8 @@
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn.disabled) return;
 
-            // Best-effort: clear any stale MSAL interaction flags that might block new redirects
+            // ONLY clear interaction flags in sessionStorage (not the actual tokens!)
+            // Clearing localStorage tokens causes loss of session on redirect AND affects other apps
             try {
                 // Collect keys first to avoid mutation issues while iterating
                 const sessKeys = [];
@@ -662,35 +663,15 @@
                 sessKeys.forEach(k => {
                     if (!k) return;
                     // Remove any sessionStorage keys MSAL may have left behind
-                    if (k.includes('msal') || k.includes('login.windows') || k.includes('msal.interaction.status')) {
+                    if (k.includes('msal.interaction.status')) {
                         try { sessionStorage.removeItem(k); console.debug('Cleared sessionStorage key', k); } catch (e) {}
                     }
                 });
 
-                // Also clear MSAL-related localStorage keys (best-effort)
-                const localKeys = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    localKeys.push(localStorage.key(i));
-                }
-                localKeys.forEach(k => {
-                    if (!k) return;
-                    if (k.includes('msal') || k.includes('login.windows')) {
-                        try { localStorage.removeItem(k); console.debug('Cleared localStorage key', k); } catch (e) {}
-                    }
-                });
-
-                // Try to clear MSAL cookies (best-effort on localhost)
-                try {
-                    document.cookie.split(';').forEach(cookie => {
-                        const cookieName = cookie.split('=')[0].trim();
-                        if (!cookieName) return;
-                        if (cookieName.includes('msal') || cookieName.includes('login.windows')) {
-                            try { document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`; } catch (e) {}
-                        }
-                    });
-                } catch (cookieErr) {
-                    // ignore
-                }
+                // DO NOT clear localStorage - it contains encrypted tokens used by THIS app
+                // and potentially shared with other apps on the same domain
+                console.debug('[Login] Preserving localStorage tokens for session persistence');
+                
             } catch (statusError) {
                 console.warn('Unable to clear MSAL interaction status before login.', statusError);
             }
