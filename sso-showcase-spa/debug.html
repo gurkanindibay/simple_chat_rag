@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSO Debug - Storage Inspector</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h1 {
+            color: #4ec9b0;
+            border-bottom: 2px solid #4ec9b0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #569cd6;
+            margin-top: 30px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #2d5016;
+            border-left: 4px solid #4ec9b0;
+        }
+        .error {
+            background: #5a1d1d;
+            border-left: 4px solid #f48771;
+        }
+        .warning {
+            background: #5a4a1d;
+            border-left: 4px solid #dcdcaa;
+        }
+        .storage-item {
+            background: #1e1e1e;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        .key {
+            color: #9cdcfe;
+            font-weight: bold;
+        }
+        .value {
+            color: #ce9178;
+            margin-left: 20px;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        .clear-btn {
+            background: #a1260d;
+        }
+        .clear-btn:hover {
+            background: #c72e0d;
+        }
+        code {
+            background: #1e1e1e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ce9178;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 SSO Debug Tool - Browser Storage Inspector</h1>
+        
+        <div id="status"></div>
+
+        <h2>📊 localStorage (Main App: port 5173)</h2>
+        <div id="localStorage5173"></div>
+
+        <h2>📊 localStorage (SSO Showcase: port 8001)</h2>
+        <div id="localStorage8001"></div>
+
+        <h2>📊 Current Page localStorage</h2>
+        <div id="localStorageCurrent"></div>
+
+        <h2>⚙️ Actions</h2>
+        <button onclick="location.reload()">🔄 Refresh</button>
+        <button onclick="clearLocalStorage()" class="clear-btn">🗑️ Clear Current localStorage</button>
+        <button onclick="window.open('http://localhost:5173', '_blank')">🚀 Open Main App</button>
+        <button onclick="window.open('http://localhost:8001', '_blank')">🔐 Open SSO Showcase</button>
+
+        <h2>📋 Instructions</h2>
+        <div class="warning">
+            <strong>How to fix SSO:</strong>
+            <ol>
+                <li>Open this page from <code>http://localhost:5173</code> origin (visit main app first)</li>
+                <li>Check if you see any MSAL tokens in localStorage above</li>
+                <li>If NO tokens found: Sign out from main app and sign in again</li>
+                <li>If tokens found: They should automatically work in SSO Showcase</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function displayStorage(storageObj, elementId, origin) {
+            const container = document.getElementById(elementId);
+            const items = [];
+            
+            try {
+                for (let i = 0; i < storageObj.length; i++) {
+                    const key = storageObj.key(i);
+                    const value = storageObj.getItem(key);
+                    
+                    // Check if it's an MSAL key
+                    const isMSAL = key.includes('msal') || key.includes('login.windows') || 
+                                   key.includes('a8a16485-0827-46c6-b3e0-91fca5966341');
+                    
+                    items.push({
+                        key: key,
+                        value: value,
+                        isMSAL: isMSAL
+                    });
+                }
+                
+                if (items.length === 0) {
+                    container.innerHTML = `<div class="error">❌ No items found in localStorage${origin ? ' for ' + origin : ''}</div>`;
+                } else {
+                    const msalItems = items.filter(item => item.isMSAL);
+                    const otherItems = items.filter(item => !item.isMSAL);
+                    
+                    let html = '';
+                    
+                    if (msalItems.length > 0) {
+                        html += `<div class="success">✅ Found ${msalItems.length} MSAL-related items (these are used for SSO)</div>`;
+                        msalItems.forEach(item => {
+                            const shortValue = item.value.length > 100 ? item.value.substring(0, 100) + '...' : item.value;
+                            html += `<div class="storage-item">
+                                <div class="key">🔑 ${item.key}</div>
+                                <div class="value">${shortValue}</div>
+                            </div>`;
+                        });
+                    } else {
+                        html += `<div class="error">❌ No MSAL tokens found. This is the problem!</div>`;
+                    }
+                    
+                    if (otherItems.length > 0) {
+                        html += `<p>Other items: ${otherItems.length}</p>`;
+                    }
+                    
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error">❌ Cannot access localStorage: ${error.message}</div>`;
+            }
+        }
+
+        function checkStatus() {
+            const statusDiv = document.getElementById('status');
+            const currentOrigin = window.location.origin;
+            
+            let html = '<div class="warning">';
+            html += `<strong>Current page origin:</strong> ${currentOrigin}<br>`;
+            html += `<strong>Expected for main app:</strong> http://localhost:5173<br>`;
+            html += `<strong>Expected for SSO showcase:</strong> http://localhost:8001<br><br>`;
+            
+            if (currentOrigin === 'http://localhost:5173') {
+                html += '✅ You are viewing from MAIN APP origin (correct for inspecting main app tokens)';
+            } else if (currentOrigin === 'http://localhost:8001') {
+                html += '✅ You are viewing from SSO SHOWCASE origin (correct for inspecting SSO tokens)';
+            } else {
+                html += '⚠️ Unknown origin. Open this file through the web server, not directly.';
+            }
+            
+            html += '</div>';
+            statusDiv.innerHTML = html;
+        }
+
+        function clearLocalStorage() {
+            if (confirm('Clear all localStorage for current origin? This will sign you out.')) {
+                localStorage.clear();
+                alert('localStorage cleared! Refresh the page.');
+                location.reload();
+            }
+        }
+
+        // Display current page's localStorage
+        displayStorage(localStorage, 'localStorageCurrent');
+        
+        // Check status
+        checkStatus();
+
+        // Note: We cannot access localStorage from other origins due to browser security
+        document.getElementById('localStorage5173').innerHTML = 
+            '<div class="warning">⚠️ Cannot access from different origin. Open this page at http://localhost:5173/debug.html to inspect main app storage.</div>';
+        document.getElementById('localStorage8001').innerHTML = 
+            '<div class="warning">⚠️ Cannot access from different origin. Open this page at http://localhost:8001/debug.html to inspect SSO showcase storage.</div>';
+    </script>
+</body>
+</html>

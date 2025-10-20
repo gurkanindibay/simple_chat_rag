@@ -6,7 +6,18 @@ A production-ready Retrieval-Augmented Generation (RAG) application that ingests
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Comprehensive architecture documentation with ASCII and Mermaid diagrams
 - **[AUTHENTICATION.md](./AUTHENTICATION.md)** - Microsoft Entra (Azure AD) authentication setup guide
+- **[SSO_SHOWCASE.md](./SSO_SHOWCASE.md)** - SSO showcase feature guide (NEW!)
 - **[README.md](./README.md)** - This file (setup and usage guide)
+
+## ✨ Key Features
+
+- 🔐 **Enterprise SSO** - Microsoft Entra ID (Azure AD) authentication with SSO showcase page
+- 📄 **PDF Ingestion** - Upload and process PDF documents
+- 🔍 **Vector Search** - Efficient semantic search using pgvector
+- 💬 **RAG Chat** - GPT-powered answers with document context
+- 🎨 **Modern UI** - React-based responsive interface
+- 🐳 **Docker Ready** - One-command deployment with Docker Compose
+- 🔄 **Flexible Providers** - Support for OpenAI, Azure OpenAI, and local models
 
 ## 🏗️ Architecture Overview
 

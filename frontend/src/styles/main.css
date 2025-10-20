@@ -1010,6 +1010,34 @@ button i {
   font-size: 16px;
 }
 
+.sso-showcase-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 8px;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.sso-showcase-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+}
+
+.sso-showcase-button i {
+  font-size: 16px;
+}
+
 .signout-button {
   display: flex;
   align-items: center;

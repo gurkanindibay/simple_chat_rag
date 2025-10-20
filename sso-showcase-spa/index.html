@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSO Showcase - Second SPA</title>
+    <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.loading {
+            background: #ffc107;
+        }
+
+        .status-dot.success {
+            background: #28a745;
+        }
+
+        .status-dot.error {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-info {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+        }
+
+        .info-value {
+            color: #212529;
+            word-break: break-all;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #28a745;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .info-box h3 {
+            margin-bottom: 10px;
+            color: #0c5460;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        .config-info {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.9rem;
+        }
+
+        .config-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #loginBtn {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="badge">🔐 SSO Showcase Application</div>
+            <h1>Second SPA Demo</h1>
+            <p>Testing Single Sign-On Between Applications</p>
+        </div>
+
+        <div class="config-info">
+            <strong>📋 Application Configuration:</strong>
+            <div id="configDisplay">Loading configuration...</div>
+        </div>
+
+        <div class="status-card">
+            <div class="status-indicator">
+                <div class="status-dot loading" id="statusDot"></div>
+                <div id="statusText">Checking authentication status...</div>
+            </div>
+
+            <div id="authContent">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button id="loginBtn" class="btn btn-primary">
+                Sign in with Microsoft
+            </button>
+            <button id="logoutBtn" class="btn btn-secondary" style="display: none;">
+                Sign Out
+            </button>
+            <a href="http://localhost:5173" class="btn btn-secondary">
+                Open Main App
+            </a>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Testing SSO:</h3>
+            <ul>
+                <li><strong>Step 1:</strong> Sign in to the main application (localhost:5173)</li>
+                <li><strong>Step 2:</strong> Come back to this page</li>
+                <li><strong>Step 3:</strong> This page should automatically authenticate you without requiring another login</li>
+                <li><strong>Expected Result:</strong> You should see your user info appear automatically</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            This is a separate Single Page Application (SPA) with its own Client ID,<br>
+            demonstrating true SSO behavior across different applications.
+        </div>
+    </div>
+
+    <script>
+        // Configuration - These will be replaced with actual values
+        const msalConfig = {
+            auth: {
+                clientId: 'a8a16485-0827-46c6-b3e0-91fca5966341', // Using SAME client ID as main app for SSO
+                authority: 'https://login.microsoftonline.com/066690f2-a8a6-4889-852e-124371dcbd6f',
+                redirectUri: 'http://localhost:8001'
+            },
+            cache: {
+                cacheLocation: 'localStorage', // Enable SSO across tabs
+                storeAuthStateInCookie: false
+            }
+        };
+
+        const loginRequest = {
+            scopes: ['User.Read', 'openid', 'profile', 'email']
+        };
+
+        // Display configuration
+        document.getElementById('configDisplay').innerHTML = `
+            <strong>Client ID:</strong> ${msalConfig.auth.clientId}<br>
+            <strong>Redirect URI:</strong> ${msalConfig.auth.redirectUri}<br>
+            <strong>Authority:</strong> ${msalConfig.auth.authority}
+        `;
+
+        // Initialize MSAL
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        let accountId = null;
+
+        // Handle redirect promise
+        msalInstance.handleRedirectPromise()
+            .then(response => {
+                if (response) {
+                    accountId = response.account.homeAccountId;
+                    showUserInfo(response.account);
+                } else {
+                    // Try SSO silent authentication
+                    attemptSSOSilent();
+                }
+            })
+            .catch(error => {
+                console.error('Redirect error:', error);
+                showError('Authentication redirect failed: ' + error.message);
+            });
+
+        async function attemptSSOSilent() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = 'status-dot loading';
+            statusText.textContent = 'Attempting SSO silent authentication...';
+
+            try {
+                // First, try to get accounts from localStorage
+                const accounts = msalInstance.getAllAccounts();
+                
+                if (accounts.length > 0) {
+                    // Found an account in localStorage - use it
+                    console.log('Found account in localStorage:', accounts[0].username);
+                    accountId = accounts[0].homeAccountId;
+                    
+                    // Try to acquire token silently
+                    try {
+                        const tokenResponse = await msalInstance.acquireTokenSilent({
+                            ...loginRequest,
+                            account: accounts[0]
+                        });
+                        showUserInfo(accounts[0]);
+                        showSuccess('✅ SSO Successful! You were automatically authenticated using cached tokens.');
+                        return;
+                    } catch (tokenError) {
+                        console.log('Token acquisition failed, trying ssoSilent:', tokenError);
+                    }
+                }
+                
+                // No accounts in localStorage, try ssoSilent (checks Microsoft's session cookies)
+                console.log('No cached accounts, attempting ssoSilent...');
+                const response = await msalInstance.ssoSilent(loginRequest);
+                accountId = response.account.homeAccountId;
+                showUserInfo(response.account);
+                showSuccess('✅ SSO Successful! You were automatically authenticated via Microsoft session.');
+            } catch (error) {
+                console.log('SSO Silent failed:', error);
+                
+                if (error.errorCode === 'interaction_required' || 
+                    error.errorCode === 'consent_required' || 
+                    error.errorCode === 'login_required') {
+                    statusDot.className = 'status-dot error';
+                    statusText.textContent = 'Not authenticated - Please sign in';
+                    document.getElementById('loginBtn').style.display = 'inline-block';
+                    
+                    const authContent = document.getElementById('authContent');
+                    authContent.innerHTML = `
+                        <div class="info-box" style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                            <strong>ℹ️ SSO Not Available</strong><br><br>
+                            <p>No active Microsoft session found. This is expected because:</p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Different Origins:</strong> localStorage is isolated per origin (port 5173 vs 8001)</li>
+                                <li><strong>No Microsoft Session:</strong> You may not have signed in recently enough</li>
+                                <li><strong>Cookie Restrictions:</strong> Browser security prevents direct cookie sharing</li>
+                            </ul>
+                            <br>
+                            <p><strong>To test true SSO:</strong></p>
+                            <ol style="margin-left: 20px;">
+                                <li>Click "Sign in with Microsoft" below</li>
+                                <li>You should NOT see a password prompt (SSO works!)</li>
+                                <li>Microsoft will recognize your existing session</li>
+                            </ol>
+                        </div>
+                    `;
+                } else {
+                    showError('SSO attempt failed: ' + error.message);
+                }
+            }
+        }
+
+        function showUserInfo(account) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const authContent = document.getElementById('authContent');
+            
+            statusDot.className = 'status-dot success';
+            statusText.textContent = '✅ Authenticated Successfully';
+
+            authContent.innerHTML = `
+                <div class="user-info">
+                    <div class="info-row">
+                        <div class="info-label">Display Name:</div>
+                        <div class="info-value">${account.name || 'N/A'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">${account.username || 'N/A'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">User ID:</div>
+                        <div class="info-value">${account.homeAccountId || 'N/A'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Environment:</div>
+                        <div class="info-value">${account.environment || 'N/A'}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+        }
+
+        function showError(message) {
+            const authContent = document.getElementById('authContent');
+            authContent.innerHTML = `<div class="error-message">❌ ${message}</div>`;
+            document.getElementById('loginBtn').style.display = 'inline-block';
+        }
+
+        function showSuccess(message) {
+            const authContent = document.getElementById('authContent');
+            const existing = authContent.innerHTML;
+            authContent.innerHTML = `<div class="success-message">${message}</div>` + existing;
+        }
+
+        function showInfo(message) {
+            const authContent = document.getElementById('authContent');
+            authContent.innerHTML = `<div class="success-message">ℹ️ ${message}</div>`;
+        }
+
+        // Login button handler
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            msalInstance.loginRedirect(loginRequest);
+        });
+
+        // Logout button handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            const account = msalInstance.getAllAccounts()[0];
+            if (account) {
+                msalInstance.logoutRedirect({
+                    account: account
+                });
+            }
+        });
+    </script>
+</body>
+</html>

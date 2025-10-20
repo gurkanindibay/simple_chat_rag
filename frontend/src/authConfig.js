@@ -22,7 +22,7 @@ export const msalConfig = {
     redirectUri: import.meta.env.VITE_REDIRECT_URI || window.location.origin,
   },
   cache: {
-    cacheLocation: 'sessionStorage', // Use 'localStorage' for persistent login
+    cacheLocation: 'localStorage', // Changed to localStorage for SSO across tabs/windows
     storeAuthStateInCookie: false, // Set to true if you have issues with IE11 or Edge
   },
   // MSAL system logger options - writes MSAL logs to the browser console

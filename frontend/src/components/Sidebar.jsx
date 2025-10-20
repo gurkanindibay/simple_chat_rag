@@ -12,6 +12,12 @@ export function Sidebar({ config, ingested, stats, onRefresh }) {
     // Use redirect for sign-out to ensure full cleanup in SPA scenarios
     instance.logoutRedirect({ postLogoutRedirectUri: '/' }).catch((e) => console.error('Logout redirect failed', e));
   };
+
+  const handleSSOShowcase = () => {
+    // Open the standalone SSO showcase SPA (independent application on port 8001)
+    window.open('http://localhost:8001', '_blank');
+  };
+  
   const handleConfigChange = (updatedConfig) => {
     console.log('Config updated:', updatedConfig);
     // Refresh all data to get latest stats with new config
@@ -30,6 +36,14 @@ export function Sidebar({ config, ingested, stats, onRefresh }) {
       </div>
       <div className="sidebar-actions">
         <DeleteButton onDeleted={onRefresh} />
+        <button 
+          className="sso-showcase-button"
+          onClick={handleSSOShowcase}
+          title="View SSO Showcase (Standalone SPA)"
+        >
+          <i className="fas fa-shield-alt"></i>
+          <span>SSO Showcase</span>
+        </button>
         <button className="signout-button" onClick={handleSignOut} title="Sign out">
           <i className="fas fa-sign-out-alt"></i>
           <span>Sign out</span>
