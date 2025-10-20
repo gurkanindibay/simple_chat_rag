@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { useMsal } from '@azure/msal-react';
+import { useLogout } from '../hooks/useLogout';
 
 export function ChatHeader({ userAccount }) {
-  const { instance, accounts } = useMsal();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { accounts } = useMsal();
+  const { logout, isLoggingOut } = useLogout({ logoutType: 'popup' });
 
   // Prefer passed userAccount, otherwise use first account from MSAL
   const acct = userAccount || (accounts && accounts[0]) || null;
@@ -14,33 +14,10 @@ export function ChatHeader({ userAccount }) {
     : null;
 
   const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple clicks
-    
-    setIsLoggingOut(true);
-    
     try {
-      const logoutMarker = Date.now().toString();
-      
-      // Set global logout flag so other apps on same browser can detect logout
-      localStorage.setItem('msal_global_logout', logoutMarker);
-      localStorage.setItem('msal_global_logout_processed', logoutMarker);
-      
-      // Also try to set cookie for cross-origin coordination
-      try {
-        document.cookie = `msal_global_logout=${logoutMarker}; path=/; max-age=300`;
-      } catch (cookieError) {
-        console.warn('Unable to set msal_global_logout cookie during logout.', cookieError);
-      }
-      
-      // Clear our app-specific logged-in marker
-      try { localStorage.removeItem('app_logged_in'); } catch (e) { /* ignore */ }
-      
-      // Perform MSAL logout (popup)
-      await instance.logoutPopup({ postLogoutRedirectUri: '/' });
+      await logout();
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      setIsLoggingOut(false);
     }
   };
 

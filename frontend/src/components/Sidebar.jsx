@@ -3,30 +3,17 @@ import { PDFUploadCard } from './PDFUploadCard';
 import { IngestedPDFsCard } from './IngestedPDFsCard';
 import { StatsCard } from './StatsCard';
 import { DeleteButton } from './DeleteButton';
-import { useMsal } from '@azure/msal-react';
+import { useLogout } from '../hooks/useLogout';
 
 export function Sidebar({ config, ingested, stats, onRefresh }) {
-  const { instance } = useMsal();
+  const { logout, isLoggingOut } = useLogout({ logoutType: 'redirect' });
 
-  const handleSignOut = () => {
-    // Set global logout marker so other same-host apps (different port) can detect it.
+  const handleSignOut = async () => {
     try {
-      const logoutMarker = Date.now().toString();
-      localStorage.setItem('msal_global_logout', logoutMarker);
-      localStorage.setItem('msal_global_logout_processed', logoutMarker);
-      try {
-        document.cookie = `msal_global_logout=${logoutMarker}; path=/; max-age=300`;
-      } catch (cookieError) {
-        console.warn('Unable to set msal_global_logout cookie during logout.', cookieError);
-      }
-      // Clear our app-specific logged-in marker; leave MSAL cache intact so other apps can still detect session if desired.
-      try { localStorage.removeItem('app_logged_in'); } catch (e) { /* ignore */ }
-    } catch (e) {
-      console.warn('Error while setting global logout marker:', e);
+      await logout();
+    } catch (error) {
+      console.error('Sign out error:', error);
     }
-
-    // Use redirect for sign-out to ensure full cleanup in SPA scenarios
-    instance.logoutRedirect({ postLogoutRedirectUri: '/' }).catch((e) => console.error('Logout redirect failed', e));
   };
 
   const handleSSOShowcase = () => {
@@ -60,9 +47,9 @@ export function Sidebar({ config, ingested, stats, onRefresh }) {
           <i className="fas fa-shield-alt"></i>
           <span>SSO Showcase</span>
         </button>
-        <button className="signout-button" onClick={handleSignOut} title="Sign out">
-          <i className="fas fa-sign-out-alt"></i>
-          <span>Sign out</span>
+        <button className="signout-button" onClick={handleSignOut} disabled={isLoggingOut} title={isLoggingOut ? "Signing out..." : "Sign out"}>
+          <i className={`fas ${isLoggingOut ? 'fa-spinner fa-spin' : 'fa-sign-out-alt'}`}></i>
+          <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
         </button>
       </div>
     </div>
