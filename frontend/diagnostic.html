@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSAL localStorage Diagnostic</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #333; }
+    .section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .code {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    button {
+      background: #0078d4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #005a9e; }
+    .warning { color: #d83b01; }
+    .success { color: #107c10; }
+    .info { color: #0078d4; }
+  </style>
+</head>
+<body>
+  <h1>🔍 MSAL localStorage Diagnostic Tool</h1>
+  
+  <div class="section">
+    <h2>Quick Actions</h2>
+    <button onclick="checkLocalStorage()">Check localStorage</button>
+    <button onclick="checkMSAL()">Check MSAL State</button>
+    <button onclick="clearMSAL()">Clear MSAL Data</button>
+    <button onclick="exportData()">Export Data</button>
+  </div>
+
+  <div class="section">
+    <h2>Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function log(message, type = 'info') {
+      const div = document.getElementById('results');
+      const p = document.createElement('p');
+      p.className = type;
+      p.textContent = message;
+      div.appendChild(p);
+    }
+
+    function logCode(data) {
+      const div = document.getElementById('results');
+      const pre = document.createElement('div');
+      pre.className = 'code';
+      pre.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+      div.appendChild(pre);
+    }
+
+    function clearResults() {
+      document.getElementById('results').innerHTML = '';
+    }
+
+    function checkLocalStorage() {
+      clearResults();
+      log('=== Checking localStorage ===', 'info');
+      
+      const allKeys = Object.keys(localStorage);
+      log(`Total localStorage keys: ${allKeys.length}`, 'info');
+      
+      const msalKeys = allKeys.filter(key => 
+        key.includes('msal') || 
+        key.includes('login.windows') || 
+        key.includes('login.microsoftonline')
+      );
+      
+      log(`MSAL-related keys: ${msalKeys.length}`, msalKeys.length > 0 ? 'success' : 'warning');
+      
+      if (msalKeys.length === 0) {
+        log('⚠️ No MSAL keys found! User has not logged in or data was cleared.', 'warning');
+        return;
+      }
+      
+      log('\n=== MSAL Keys Found ===', 'info');
+      msalKeys.forEach(key => {
+        log(`\nKey: ${key}`, 'info');
+        try {
+          const value = localStorage.getItem(key);
+          const parsed = JSON.parse(value);
+          
+          if (typeof parsed === 'object') {
+            // Show structure
+            if (parsed.credentialType) {
+              log(`  Type: ${parsed.credentialType}`, 'success');
+            }
+            if (parsed.homeAccountId) {
+              log(`  Account: ${parsed.homeAccountId}`, 'success');
+            }
+            if (parsed.clientId) {
+              log(`  Client ID: ${parsed.clientId}`, 'info');
+            }
+            if (parsed.expiresOn) {
+              const expiry = new Date(parsed.expiresOn * 1000);
+              const isExpired = expiry < new Date();
+              log(`  Expires: ${expiry.toLocaleString()} ${isExpired ? '(EXPIRED)' : '(valid)'}`, 
+                  isExpired ? 'warning' : 'success');
+            }
+            
+            // Show sample of data
+            logCode({
+              keyName: key,
+              dataKeys: Object.keys(parsed),
+              sampleData: parsed
+            });
+          } else {
+            logCode(value);
+          }
+        } catch (e) {
+          log(`  (Error parsing: ${e.message})`, 'warning');
+          logCode(localStorage.getItem(key).substring(0, 200) + '...');
+        }
+      });
+      
+      // Check for account keys specifically
+      const accountKeys = msalKeys.filter(k => 
+        k.includes('Account') || 
+        k.includes('account') ||
+        k.toLowerCase().includes('accountinfo')
+      );
+      
+      if (accountKeys.length === 0) {
+        log('\n⚠️ WARNING: No account keys found! MSAL may not have stored user account data.', 'warning');
+        log('This typically means the login flow did not complete successfully.', 'warning');
+      } else {
+        log(`\n✅ Found ${accountKeys.length} account-related keys`, 'success');
+      }
+    }
+
+    function checkMSAL() {
+      clearResults();
+      log('=== Checking MSAL Instance ===', 'info');
+      
+      if (!window.__msal) {
+        log('❌ MSAL instance not found on window.__msal', 'warning');
+        log('The app may not have initialized yet.', 'warning');
+        return;
+      }
+      
+      try {
+        const accounts = window.__msal.getAllAccounts();
+        log(`Accounts found: ${accounts.length}`, accounts.length > 0 ? 'success' : 'warning');
+        
+        if (accounts.length > 0) {
+          accounts.forEach((acc, i) => {
+            log(`\nAccount ${i + 1}:`, 'success');
+            logCode({
+              username: acc.username,
+              name: acc.name,
+              homeAccountId: acc.homeAccountId,
+              environment: acc.environment,
+              tenantId: acc.tenantId
+            });
+          });
+          
+          const activeAccount = window.__msal.getActiveAccount();
+          if (activeAccount) {
+            log(`\n✅ Active account set: ${activeAccount.username}`, 'success');
+          } else {
+            log(`\n⚠️ No active account set`, 'warning');
+          }
+        } else {
+          log('\n⚠️ No accounts found in MSAL instance', 'warning');
+          log('User needs to login.', 'warning');
+        }
+        
+        // Check configuration
+        const config = window.__msal.config;
+        if (config) {
+          log('\n=== MSAL Configuration ===', 'info');
+          logCode({
+            clientId: config.auth.clientId,
+            authority: config.auth.authority,
+            redirectUri: config.auth.redirectUri,
+            cacheLocation: config.cache.cacheLocation
+          });
+        }
+      } catch (e) {
+        log(`Error checking MSAL: ${e.message}`, 'warning');
+      }
+    }
+
+    function clearMSAL() {
+      if (!confirm('This will clear all MSAL data from localStorage. Continue?')) {
+        return;
+      }
+      
+      clearResults();
+      log('=== Clearing MSAL Data ===', 'warning');
+      
+      const allKeys = Object.keys(localStorage);
+      const msalKeys = allKeys.filter(key => 
+        key.includes('msal') || 
+        key.includes('login.windows') || 
+        key.includes('login.microsoftonline') ||
+        key === 'app_logged_in'
+      );
+      
+      msalKeys.forEach(key => {
+        localStorage.removeItem(key);
+        log(`Removed: ${key}`, 'info');
+      });
+      
+      log(`\n✅ Cleared ${msalKeys.length} keys`, 'success');
+      log('Reload the page to start fresh.', 'info');
+    }
+
+    function exportData() {
+      clearResults();
+      log('=== Exporting localStorage Data ===', 'info');
+      
+      const data = {};
+      const allKeys = Object.keys(localStorage);
+      const msalKeys = allKeys.filter(key => 
+        key.includes('msal') || 
+        key.includes('login.windows') || 
+        key.includes('login.microsoftonline')
+      );
+      
+      msalKeys.forEach(key => {
+        try {
+          data[key] = JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+          data[key] = localStorage.getItem(key);
+        }
+      });
+      
+      const json = JSON.stringify(data, null, 2);
+      logCode(json);
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(json).then(() => {
+        log('\n✅ Data copied to clipboard!', 'success');
+      }).catch(e => {
+        log('\n⚠️ Could not copy to clipboard', 'warning');
+      });
+    }
+
+    // Auto-run check on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        checkLocalStorage();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

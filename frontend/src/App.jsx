@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useIsAuthenticated, useMsal } from '@azure/msal-react';
 import { ChatHeader } from './components/ChatHeader';
 import { MessagesList } from './components/MessagesList';
@@ -11,14 +11,26 @@ import { useAppData } from './hooks/useAppData';
 import './styles/main.css';
 
 function App() {
-  const { instance, accounts } = useMsal();
+  const { instance, accounts, inProgress } = useMsal();
   const isAuthenticatedHook = useIsAuthenticated();
+  const [isInitializing, setIsInitializing] = useState(true);
+  
   // Fallback: if MSAL already has accounts in cache, consider the user authenticated
   const isAuthenticated = isAuthenticatedHook || (accounts && accounts.length > 0);
   const { messages, setMessages, loading, sendMessage } = useChatAPI();
   const { config, ingested, stats, loading: dataLoading, loadData } = useAppData();
 
-  console.log('[App] Render - isAuthenticatedHook:', isAuthenticatedHook, 'accounts:', accounts?.length, 'isAuthenticated:', isAuthenticated);
+  console.log('[App] Render - isAuthenticatedHook:', isAuthenticatedHook, 'accounts:', accounts?.length, 'isAuthenticated:', isAuthenticated, 'inProgress:', inProgress, 'isInitializing:', isInitializing);
+
+  // Wait for MSAL to finish initializing before showing login page
+  useEffect(() => {
+    // Give MSAL a moment to load accounts from cache
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -105,6 +117,18 @@ function App() {
     console.log('Manual refresh triggered');
     loadData();
   };
+
+  // Show loading state while MSAL is initializing to prevent flash of login page
+  if (isInitializing || inProgress === 'startup' || inProgress === 'handleRedirect') {
+    return (
+      <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', marginBottom: '10px' }}>Loading...</div>
+          <div style={{ fontSize: '14px', color: '#666' }}>Checking authentication status</div>
+        </div>
+      </div>
+    );
+  }
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
