@@ -378,6 +378,15 @@
                         }
                     }
                     keysToRemove.forEach(key => localStorage.removeItem(key));
+                    // Clear ALL sessionStorage (including interaction status)
+                    const sessionKeysToRemove = [];
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        if (key && (key.includes('msal') || key.includes('login.windows'))) {
+                            sessionKeysToRemove.push(key);
+                        }
+                    }
+                    sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
                     logoutHandled = true;
                 } else {
                     // Flag is old, remove it
@@ -410,6 +419,16 @@
                                 }
                             }
                             keysToRemove.forEach(key => localStorage.removeItem(key));
+                            
+                            // Clear ALL sessionStorage (including interaction status)
+                            const sessionKeysToRemove = [];
+                            for (let i = 0; i < sessionStorage.length; i++) {
+                                const key = sessionStorage.key(i);
+                                if (key && (key.includes('msal') || key.includes('login.windows'))) {
+                                    sessionKeysToRemove.push(key);
+                                }
+                            }
+                            sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
 
                             // Expire the cookie so it doesn't trigger repeatedly
                             document.cookie = 'msal_global_logout=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
@@ -491,6 +510,15 @@
                     document.getElementById('statusText').textContent = 'Logged out - Please sign in';
                     document.getElementById('loginBtn').style.display = 'inline-block';
                     document.getElementById('logoutBtn').style.display = 'none';
+                    // Clear ALL sessionStorage (including interaction status)
+                    const sessionKeysToRemove = [];
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        if (key && (key.includes('msal') || key.includes('login.windows'))) {
+                            sessionKeysToRemove.push(key);
+                        }
+                    }
+                    sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
                     return;
                 } else {
                     // Flag is old, remove it
@@ -513,6 +541,15 @@
                     document.getElementById('statusText').textContent = 'Logged out - Please sign in';
                     document.getElementById('loginBtn').style.display = 'inline-block';
                     document.getElementById('logoutBtn').style.display = 'none';
+                    // Clear ALL sessionStorage (including interaction status)
+                    const sessionKeysToRemove = [];
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        if (key && (key.includes('msal') || key.includes('login.windows'))) {
+                            sessionKeysToRemove.push(key);
+                        }
+                    }
+                    sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
                     return;
                 }
             }
@@ -662,9 +699,13 @@
                 }
                 sessKeys.forEach(k => {
                     if (!k) return;
-                    // Remove any sessionStorage keys MSAL may have left behind
-                    if (k.includes('msal.interaction.status')) {
-                        try { sessionStorage.removeItem(k); console.debug('Cleared sessionStorage key', k); } catch (e) {}
+                    // Remove ALL MSAL sessionStorage keys, not just interaction status
+                    // This prevents "interaction_in_progress" errors from stale state
+                    if (k.includes('msal') || k.includes('login.windows')) {
+                        try { 
+                            sessionStorage.removeItem(k); 
+                            console.debug('Cleared sessionStorage key', k); 
+                        } catch (e) {}
                     }
                 });
 
@@ -738,6 +779,16 @@
                     }
                 }
                 keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                // Clear ALL sessionStorage (including interaction status)
+                const sessionKeysToRemove = [];
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    if (key && (key.includes('msal') || key.includes('login.windows'))) {
+                        sessionKeysToRemove.push(key);
+                    }
+                }
+                sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
                 
                 // Clear MSAL-related cookies
                 document.cookie.split(';').forEach(cookie => {

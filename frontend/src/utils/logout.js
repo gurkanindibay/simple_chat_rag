@@ -106,7 +106,7 @@ export function markLogoutFlagProcessed(logoutTime) {
 }
 
 /**
- * Clear all MSAL-related storage (localStorage and cookies).
+ * Clear all MSAL-related storage (localStorage, sessionStorage, and cookies).
  * Use with caution as this will remove all authentication state.
  */
 export function clearMSALStorage() {
@@ -126,6 +126,19 @@ export function clearMSALStorage() {
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
       console.log('[clearMSALStorage] Removed localStorage key:', key);
+    });
+    
+    // Clear ALL MSAL keys from sessionStorage (including interaction status)
+    const sessionKeysToRemove = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && (key.includes('msal') || key.includes('login.windows'))) {
+        sessionKeysToRemove.push(key);
+      }
+    }
+    sessionKeysToRemove.forEach(key => {
+      sessionStorage.removeItem(key);
+      console.log('[clearMSALStorage] Removed sessionStorage key:', key);
     });
     
     // Clear MSAL-related cookies

@@ -9,15 +9,16 @@ export const Login = () => {
     // ONLY clear interaction status flags in sessionStorage (not the actual tokens!)
     // Clearing localStorage tokens causes loss of session on redirect
     try {
-      console.log('[Login] Clearing interaction flags only (preserving tokens)...');
+      console.log('[Login] Clearing all MSAL sessionStorage (preserving localStorage tokens)...');
       
-      // Clear sessionStorage interaction flags only
+      // Clear ALL MSAL sessionStorage keys (not just interaction status)
+      // This prevents "interaction_in_progress" errors from stale state
       const sessKeys = [];
       for (let i = 0; i < sessionStorage.length; i++) sessKeys.push(sessionStorage.key(i));
       sessKeys.forEach(k => {
         if (!k) return;
-        // Only clear interaction status, not actual cache
-        if (k.includes('msal.interaction.status')) {
+        // Remove ALL MSAL-related sessionStorage entries
+        if (k.includes('msal') || k.includes('login.windows')) {
           try { 
             sessionStorage.removeItem(k);
             console.log('[Login] Cleared session key:', k);
@@ -30,7 +31,7 @@ export const Login = () => {
       console.log('[Login] Preserving localStorage tokens for session persistence');
       
     } catch (e) {
-      console.warn('[Login] Error clearing interaction flags', e);
+      console.warn('[Login] Error clearing sessionStorage', e);
     }
 
     if (loginType === 'popup') {

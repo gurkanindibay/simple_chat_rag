@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMsal } from '@azure/msal-react';
-import { setGlobalLogoutFlags } from '../utils/logout';
+import { setGlobalLogoutFlags, clearMSALStorage } from '../utils/logout';
 
 /**
  * Custom hook for handling logout across all applications.
@@ -31,6 +31,9 @@ export function useLogout(options = {}) {
     try {
       // Set global logout flags for cross-app coordination
       setGlobalLogoutFlags();
+      
+      // Clear all MSAL storage including sessionStorage to prevent interaction_in_progress errors
+      clearMSALStorage();
       
       // Perform MSAL logout based on the specified type
       if (logoutType === 'redirect') {
