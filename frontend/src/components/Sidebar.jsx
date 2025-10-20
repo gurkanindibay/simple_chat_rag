@@ -19,28 +19,8 @@ export function Sidebar({ config, ingested, stats, onRefresh }) {
       } catch (cookieError) {
         console.warn('Unable to set msal_global_logout cookie during logout.', cookieError);
       }
-
-      // Clear MSAL-related localStorage entries (except the global marker keys)
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.includes('msal') || key.includes('login.windows')) && key !== 'msal_global_logout' && key !== 'msal_global_logout_processed') {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-
-      // Try to clear MSAL-related cookies as well
-      try {
-        document.cookie.split(';').forEach(cookie => {
-          const cookieName = cookie.split('=')[0].trim();
-          if ((cookieName.includes('msal') || cookieName.includes('login.windows')) && cookieName !== 'msal_global_logout') {
-            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-          }
-        });
-      } catch (cookieClearError) {
-        // Best-effort only
-      }
+      // Clear our app-specific logged-in marker; leave MSAL cache intact so other apps can still detect session if desired.
+      try { localStorage.removeItem('app_logged_in'); } catch (e) { /* ignore */ }
     } catch (e) {
       console.warn('Error while setting global logout marker:', e);
     }

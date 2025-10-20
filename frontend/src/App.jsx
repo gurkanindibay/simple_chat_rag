@@ -11,10 +11,14 @@ import { useAppData } from './hooks/useAppData';
 import './styles/main.css';
 
 function App() {
-  const isAuthenticated = useIsAuthenticated();
   const { instance, accounts } = useMsal();
+  const isAuthenticatedHook = useIsAuthenticated();
+  // Fallback: if MSAL already has accounts in cache, consider the user authenticated
+  const isAuthenticated = isAuthenticatedHook || (accounts && accounts.length > 0);
   const { messages, setMessages, loading, sendMessage } = useChatAPI();
   const { config, ingested, stats, loading: dataLoading, loadData } = useAppData();
+
+  console.log('[App] Render - isAuthenticatedHook:', isAuthenticatedHook, 'accounts:', accounts?.length, 'isAuthenticated:', isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {

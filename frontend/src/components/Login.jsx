@@ -42,12 +42,18 @@ export const Login = () => {
     if (loginType === 'popup') {
       // small delay to allow storage mutations to complete
       setTimeout(() => {
-        instance.loginPopup(loginRequest).catch((error) => {
-          console.error('Login error:', error);
-        });
+        instance.loginPopup(loginRequest)
+          .then((response) => {
+            try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
+            return response;
+          })
+          .catch((error) => {
+            console.error('Login error:', error);
+          });
       }, 150);
     } else if (loginType === 'redirect') {
       setTimeout(() => {
+        // For redirect flows the result is handled via handleRedirectPromise in main.jsx
         instance.loginRedirect(loginRequest).catch((error) => {
           console.error('Login error:', error);
         });

@@ -15,6 +15,8 @@ export function DebugPanel() {
   const [claims, setClaims] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [msalKeys, setMsalKeys] = useState(null);
+  const [msalAccounts, setMsalAccounts] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(() => {
     try {
       const s = localStorage.getItem('debugPanelCollapsed');
@@ -66,6 +68,42 @@ export function DebugPanel() {
     }
   };
 
+  const fetchMsalStorage = () => {
+    const items = [];
+    try {
+      // check both localStorage and sessionStorage
+      const storages = [ { name: 'localStorage', obj: window.localStorage }, { name: 'sessionStorage', obj: window.sessionStorage } ];
+      storages.forEach(s => {
+        try {
+          for (let i = 0; i < s.obj.length; i++) {
+            const key = s.obj.key(i);
+            if (!key) continue;
+            const isMSAL = key.toLowerCase().includes('msal') || key.toLowerCase().includes('login.windows') || key.toLowerCase().includes('msal.interaction.status');
+            if (isMSAL) {
+              let value = '';
+              try { value = String(s.obj.getItem(key) || '').slice(0, 1000); } catch (e) { value = '<unreadable>'; }
+              items.push({ storage: s.name, key, valuePreview: value });
+            }
+          }
+        } catch (e) {
+          // ignore per-storage read errors
+        }
+      });
+    } catch (e) {
+      // ignore
+    }
+    setMsalKeys(items);
+  };
+
+  const fetchMsalAccounts = () => {
+    try {
+      const accounts = window.__msal?.getAllAccounts ? window.__msal.getAllAccounts() : null;
+      setMsalAccounts(accounts || []);
+    } catch (e) {
+      setMsalAccounts(null);
+    }
+  };
+
   return (
     <div className={`debug-panel ${isCollapsed ? 'debug-panel-collapsed' : 'debug-panel-open'}`}>
       <div
@@ -99,13 +137,36 @@ export function DebugPanel() {
             <button onClick={() => { window.__authSim?.expireCachedAccessToken?.(); setClaims(null); }} title="Expire cached token now">
               ⚡ Expire
             </button>
+            <button onClick={() => { fetchMsalStorage(); fetchMsalAccounts(); }} title="Inspect MSAL storage & accounts">
+              🧾 Inspect MSAL
+            </button>
           </div>
         </div>
 
-        {(error || claims) && (
+        {(error || claims || msalKeys || msalAccounts) && (
           <div className="debug-panel-body">
             {error && <div className="debug-error">❌ Error: {error}</div>}
             {claims && <pre className="debug-claims">{JSON.stringify(claims, null, 2)}</pre>}
+            {msalKeys && (
+              <div className="debug-msal-keys">
+                <h4>MSAL storage keys</h4>
+                {msalKeys.length === 0 ? <div>No MSAL keys found</div> : (
+                  <ul>
+                    {msalKeys.map((it, idx) => (
+                      <li key={idx}><strong>{it.storage}</strong> — {it.key} — <code>{it.valuePreview}</code></li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            {msalAccounts && (
+              <div className="debug-msal-accounts">
+                <h4>MSAL accounts</h4>
+                {msalAccounts.length === 0 ? <div>No accounts found</div> : (
+                  <pre>{JSON.stringify(msalAccounts, null, 2)}</pre>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
