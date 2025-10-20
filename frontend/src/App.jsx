@@ -8,6 +8,7 @@ import { Login } from './components/Login';
 import { DebugPanel } from './components/DebugPanel';
 import { useChatAPI } from './hooks/useChatAPI';
 import { useAppData } from './hooks/useAppData';
+import { useCrossAppLogout } from './hooks/useCrossAppLogout';
 import './styles/main.css';
 
 function App() {
@@ -19,6 +20,9 @@ function App() {
   const isAuthenticated = isAuthenticatedHook || (accounts && accounts.length > 0);
   const { messages, setMessages, loading, sendMessage } = useChatAPI();
   const { config, ingested, stats, loading: dataLoading, loadData } = useAppData();
+  
+  // Handle cross-application logout coordination
+  useCrossAppLogout();
 
   console.log('[App] Render - isAuthenticatedHook:', isAuthenticatedHook, 'accounts:', accounts?.length, 'isAuthenticated:', isAuthenticated, 'inProgress:', inProgress, 'isInitializing:', isInitializing);
 
@@ -34,41 +38,6 @@ function App() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Clear any stale logout flags after successful authentication to prevent immediate logout
-      localStorage.removeItem('app_global_logout');
-      localStorage.removeItem('app_global_logout_processed');
-
-      // Check for global logout flag
-      const checkGlobalLogout = () => {
-        const processedKey = 'app_global_logout_processed';
-        const processedValue = localStorage.getItem(processedKey);
-        const lastProcessed = processedValue ? parseInt(processedValue, 10) : 0;
-
-        // Check localStorage for global logout flag (works across same browser)
-        const logoutFlag = localStorage.getItem('app_global_logout');
-        if (logoutFlag) {
-          // Check if it's recent (within last 5 minutes)
-          const logoutTime = parseInt(logoutFlag, 10);
-          const now = Date.now();
-          if (!Number.isNaN(logoutTime) && now - logoutTime < 300000 && logoutTime > lastProcessed) { // 5 minutes
-            console.log('Global logout detected, logging out...');
-            // Clear the flag
-            localStorage.removeItem('app_global_logout');
-            localStorage.setItem(processedKey, logoutTime.toString());
-            // Force logout
-            instance.logoutRedirect();
-            return;
-          } else {
-            // Flag is old, remove it
-            localStorage.removeItem('app_global_logout');
-          }
-        }
-      };
-      
-      // Check immediately and then every 5 seconds
-      checkGlobalLogout();
-      const logoutCheckInterval = setInterval(checkGlobalLogout, 5000);
-      
       console.log('App mounted, loading initial data...');
       loadData();
       
@@ -79,10 +48,9 @@ function App() {
       
       return () => {
         clearInterval(interval);
-        clearInterval(logoutCheckInterval);
       };
     }
-  }, [loadData, isAuthenticated, instance]);
+  }, [loadData, isAuthenticated]);
 
   const handleMessageSent = async (message) => {
     console.log('Message sent:', message);
