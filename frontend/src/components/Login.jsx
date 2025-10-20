@@ -6,16 +6,52 @@ export const Login = () => {
   const { instance } = useMsal();
 
   const handleLogin = (loginType) => {
+    // Best-effort: clear stale MSAL interaction flags that can cause interaction_in_progress errors
+    try {
+      const sessKeys = [];
+      for (let i = 0; i < sessionStorage.length; i++) sessKeys.push(sessionStorage.key(i));
+      sessKeys.forEach(k => {
+        if (!k) return;
+        if (k.includes('msal') || k.includes('login.windows') || k.includes('msal.interaction.status')) {
+          try { sessionStorage.removeItem(k); } catch (e) {}
+        }
+      });
+
+      const localKeys = [];
+      for (let i = 0; i < localStorage.length; i++) localKeys.push(localStorage.key(i));
+      localKeys.forEach(k => {
+        if (!k) return;
+        if (k.includes('msal') || k.includes('login.windows')) {
+          try { localStorage.removeItem(k); } catch (e) {}
+        }
+      });
+
+      try {
+        document.cookie.split(';').forEach(cookie => {
+          const cookieName = cookie.split('=')[0].trim();
+          if (!cookieName) return;
+          if (cookieName.includes('msal') || cookieName.includes('login.windows')) {
+            try { document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`; } catch (e) {}
+          }
+        });
+      } catch (e) {}
+    } catch (e) {
+      console.warn('Error clearing MSAL storage before login', e);
+    }
+
     if (loginType === 'popup') {
-      instance.loginPopup(loginRequest)
-        .catch((error) => {
+      // small delay to allow storage mutations to complete
+      setTimeout(() => {
+        instance.loginPopup(loginRequest).catch((error) => {
           console.error('Login error:', error);
         });
+      }, 150);
     } else if (loginType === 'redirect') {
-      instance.loginRedirect(loginRequest)
-        .catch((error) => {
+      setTimeout(() => {
+        instance.loginRedirect(loginRequest).catch((error) => {
           console.error('Login error:', error);
         });
+      }, 150);
     }
   };
 

@@ -651,26 +651,70 @@
             // Prevent multiple simultaneous login attempts
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn.disabled) return;
-            
-            // Clear any stale MSAL interaction flags that might block new redirects
+
+            // Best-effort: clear any stale MSAL interaction flags that might block new redirects
             try {
-                const interactionStatus = sessionStorage.getItem('msal.interaction.status');
-                if (interactionStatus) {
-                    console.log('Clearing stale MSAL interaction status before starting a new login.', interactionStatus);
-                    sessionStorage.removeItem('msal.interaction.status');
+                // Collect keys first to avoid mutation issues while iterating
+                const sessKeys = [];
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    sessKeys.push(sessionStorage.key(i));
+                }
+                sessKeys.forEach(k => {
+                    if (!k) return;
+                    // Remove any sessionStorage keys MSAL may have left behind
+                    if (k.includes('msal') || k.includes('login.windows') || k.includes('msal.interaction.status')) {
+                        try { sessionStorage.removeItem(k); console.debug('Cleared sessionStorage key', k); } catch (e) {}
+                    }
+                });
+
+                // Also clear MSAL-related localStorage keys (best-effort)
+                const localKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    localKeys.push(localStorage.key(i));
+                }
+                localKeys.forEach(k => {
+                    if (!k) return;
+                    if (k.includes('msal') || k.includes('login.windows')) {
+                        try { localStorage.removeItem(k); console.debug('Cleared localStorage key', k); } catch (e) {}
+                    }
+                });
+
+                // Try to clear MSAL cookies (best-effort on localhost)
+                try {
+                    document.cookie.split(';').forEach(cookie => {
+                        const cookieName = cookie.split('=')[0].trim();
+                        if (!cookieName) return;
+                        if (cookieName.includes('msal') || cookieName.includes('login.windows')) {
+                            try { document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`; } catch (e) {}
+                        }
+                    });
+                } catch (cookieErr) {
+                    // ignore
                 }
             } catch (statusError) {
-                console.warn('Unable to read MSAL interaction status from sessionStorage.', statusError);
+                console.warn('Unable to clear MSAL interaction status before login.', statusError);
             }
 
             loginBtn.disabled = true;
             loginBtn.textContent = 'Signing in...';
 
             try {
-                await msalInstance.loginRedirect(loginRequest);
+                // Small delay to allow storage mutations to complete and avoid race conditions
+                setTimeout(() => {
+                    // Start redirect-based login after clearing stale flags
+                    msalInstance.loginRedirect(loginRequest).catch(error => {
+                        console.error('Login redirect error:', error);
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Sign in with Microsoft';
+                        if (error && error.errorCode === 'interaction_in_progress') {
+                            showInfo('Another Microsoft authentication flow is already running. Complete or close it, then try again.');
+                        } else {
+                            showError('Login failed: ' + (error.message || 'Unknown error'));
+                        }
+                    });
+                }, 150);
             } catch (error) {
                 console.error('Login error:', error);
-
                 if (error && error.errorCode === 'interaction_in_progress') {
                     showInfo('Another Microsoft authentication flow is already running. Complete or close it, then try again.');
                 } else {
