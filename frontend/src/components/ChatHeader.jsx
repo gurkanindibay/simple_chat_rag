@@ -20,9 +20,23 @@ export function ChatHeader({ userAccount }) {
     
     try {
       const logoutMarker = Date.now().toString();
-        // Perform a normal MSAL logout (popup). Clear our app-specific logged-in marker.
-        try { localStorage.removeItem('app_logged_in'); } catch (e) { /* ignore */ }
-        await instance.logoutPopup({ postLogoutRedirectUri: '/' });
+      
+      // Set global logout flag so other apps on same browser can detect logout
+      localStorage.setItem('msal_global_logout', logoutMarker);
+      localStorage.setItem('msal_global_logout_processed', logoutMarker);
+      
+      // Also try to set cookie for cross-origin coordination
+      try {
+        document.cookie = `msal_global_logout=${logoutMarker}; path=/; max-age=300`;
+      } catch (cookieError) {
+        console.warn('Unable to set msal_global_logout cookie during logout.', cookieError);
+      }
+      
+      // Clear our app-specific logged-in marker
+      try { localStorage.removeItem('app_logged_in'); } catch (e) { /* ignore */ }
+      
+      // Perform MSAL logout (popup)
+      await instance.logoutPopup({ postLogoutRedirectUri: '/' });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
