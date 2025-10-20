@@ -2,24 +2,29 @@
  * Utility function to set global logout flags.
  * This is useful for coordinating logout across multiple applications.
  * 
- * Call this BEFORE performing MSAL logout to ensure all apps are notified.
+ * NOTE: This is a CUSTOM feature for cross-app logout coordination.
+ * MSAL does not provide cross-application logout coordination out of the box.
+ * 
+ * Call this BEFORE performing MSAL logout to notify other apps.
+ * 
+ * How it works:
+ * 1. App A calls setGlobalLogoutFlags() → sets 'app_global_logout' with timestamp
+ * 2. App B periodically checks 'app_global_logout' 
+ * 3. If timestamp > 'app_global_logout_processed', App B knows it needs to logout
+ * 4. App B logs out and calls markLogoutFlagProcessed() to mark it as handled
  */
 export function setGlobalLogoutFlags() {
   const logoutMarker = Date.now().toString();
   
-  console.log('[setGlobalLogoutFlags] Setting global logout flags...');
+  console.log('[setGlobalLogoutFlags] Setting global logout flag for cross-app coordination...');
   
   try {
     // Set global logout flag in localStorage (works across same-browser apps)
-    localStorage.setItem('msal_global_logout', logoutMarker);
-    localStorage.setItem('msal_global_logout_processed', logoutMarker);
+    // Other apps will detect this and logout if they haven't processed this timestamp yet
+    localStorage.setItem('app_global_logout', logoutMarker);
     
-    // Also try to set cookie for potential cross-origin coordination
-    try {
-      document.cookie = `msal_global_logout=${logoutMarker}; path=/; max-age=300`;
-    } catch (cookieError) {
-      console.warn('[setGlobalLogoutFlags] Unable to set msal_global_logout cookie:', cookieError);
-    }
+    // DO NOT set 'app_global_logout_processed' here!
+    // Each app will mark it as processed after they handle the logout.
     
     // Clear app-specific logged-in marker
     try { 
@@ -28,7 +33,7 @@ export function setGlobalLogoutFlags() {
       console.warn('[setGlobalLogoutFlags] Unable to clear app_logged_in marker:', e);
     }
     
-    console.log('[setGlobalLogoutFlags] Global logout flags set successfully');
+    console.log('[setGlobalLogoutFlags] Global logout flag set to:', logoutMarker);
     return true;
   } catch (error) {
     console.error('[setGlobalLogoutFlags] Error setting logout flags:', error);
@@ -40,17 +45,19 @@ export function setGlobalLogoutFlags() {
  * Check if a global logout flag has been set recently.
  * Returns the logout timestamp if found and not yet processed, null otherwise.
  * 
+ * NOTE: This is for cross-app logout coordination only.
+ * 
  * @param {number} maxAgeMs - Maximum age of the logout flag in milliseconds (default: 5 minutes)
  * @returns {number|null} - Logout timestamp if valid, null otherwise
  */
 export function checkGlobalLogoutFlag(maxAgeMs = 300000) {
-  const processedKey = 'msal_global_logout_processed';
+  const processedKey = 'app_global_logout_processed';
   const processedValue = localStorage.getItem(processedKey);
   const lastProcessed = processedValue ? parseInt(processedValue, 10) : 0;
   const now = Date.now();
 
   // Check localStorage for global logout flag
-  const logoutFlag = localStorage.getItem('msal_global_logout');
+  const logoutFlag = localStorage.getItem('app_global_logout');
   if (logoutFlag) {
     const logoutTime = parseInt(logoutFlag, 10);
     
@@ -61,24 +68,8 @@ export function checkGlobalLogoutFlag(maxAgeMs = 300000) {
       return logoutTime;
     } else if (!Number.isNaN(logoutTime) && now - logoutTime >= maxAgeMs) {
       // Flag is old, remove it
-      localStorage.removeItem('msal_global_logout');
+      localStorage.removeItem('app_global_logout');
     }
-  }
-  
-  // Also check cookie as fallback
-  try {
-    const cookies = document.cookie.split(';');
-    const logoutCookie = cookies.find(cookie => cookie.trim().startsWith('msal_global_logout='));
-    if (logoutCookie) {
-      const cookieValue = parseInt(logoutCookie.split('=')[1], 10);
-      if (!Number.isNaN(cookieValue) && 
-          cookieValue > lastProcessed && 
-          now - cookieValue < maxAgeMs) {
-        return cookieValue;
-      }
-    }
-  } catch (cookieError) {
-    console.warn('[checkGlobalLogoutFlag] Cookie check failed:', cookieError);
   }
   
   return null;
@@ -91,13 +82,10 @@ export function checkGlobalLogoutFlag(maxAgeMs = 300000) {
  */
 export function markLogoutFlagProcessed(logoutTime) {
   try {
-    localStorage.setItem('msal_global_logout_processed', logoutTime.toString());
+    localStorage.setItem('app_global_logout_processed', logoutTime.toString());
     
     // Clear the flag
-    localStorage.removeItem('msal_global_logout');
-    
-    // Expire the cookie
-    document.cookie = 'msal_global_logout=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    localStorage.removeItem('app_global_logout');
     
     console.log('[markLogoutFlagProcessed] Logout flag marked as processed:', logoutTime);
   } catch (error) {
@@ -105,54 +93,18 @@ export function markLogoutFlagProcessed(logoutTime) {
   }
 }
 
-/**
- * Clear all MSAL-related storage (localStorage, sessionStorage, and cookies).
- * Use with caution as this will remove all authentication state.
- */
-export function clearMSALStorage() {
-  console.log('[clearMSALStorage] Clearing MSAL storage...');
-  
-  try {
-    // Clear MSAL keys from localStorage
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.includes('msal') || key.includes('login.windows')) && 
-          key !== 'msal_global_logout' && 
-          key !== 'msal_global_logout_processed') {
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach(key => {
-      localStorage.removeItem(key);
-      console.log('[clearMSALStorage] Removed localStorage key:', key);
-    });
-    
-    // Clear ALL MSAL keys from sessionStorage (including interaction status)
-    const sessionKeysToRemove = [];
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      if (key && (key.includes('msal') || key.includes('login.windows'))) {
-        sessionKeysToRemove.push(key);
-      }
-    }
-    sessionKeysToRemove.forEach(key => {
-      sessionStorage.removeItem(key);
-      console.log('[clearMSALStorage] Removed sessionStorage key:', key);
-    });
-    
-    // Clear MSAL-related cookies
-    document.cookie.split(';').forEach(cookie => {
-      const cookieName = cookie.split('=')[0].trim();
-      if ((cookieName.includes('msal') || cookieName.includes('login.windows')) && 
-          cookieName !== 'msal_global_logout') {
-        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-        console.log('[clearMSALStorage] Cleared cookie:', cookieName);
-      }
-    });
-    
-    console.log('[clearMSALStorage] MSAL storage cleared successfully');
-  } catch (error) {
-    console.error('[clearMSALStorage] Error clearing MSAL storage:', error);
-  }
-}
+// NOTE: clearMSALStorage() function has been REMOVED.
+// 
+// According to Microsoft's official documentation:
+// https://learn.microsoft.com/en-us/entra/msal/javascript/browser/logout
+// 
+// "The logout process for MSAL takes two steps:
+//  1. Clear the MSAL cache.
+//  2. Clear the session on the identity server."
+// 
+// Both steps are handled automatically by logoutRedirect() and logoutPopup().
+// Manual cache clearing is NOT necessary and violates the principle of
+// letting the library manage its own state.
+// 
+// If you need to clear cache without server logout, use:
+//   instance.logoutRedirect({ onRedirectNavigate: () => false })

@@ -35,22 +35,17 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) {
       // Clear any stale logout flags after successful authentication to prevent immediate logout
-      localStorage.removeItem('msal_global_logout');
-      localStorage.removeItem('msal_global_logout_processed');
-      try {
-        document.cookie = 'msal_global_logout=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-      } catch (cookieError) {
-        console.warn('Unable to clear msal_global_logout cookie.', cookieError);
-      }
+      localStorage.removeItem('app_global_logout');
+      localStorage.removeItem('app_global_logout_processed');
 
       // Check for global logout flag
       const checkGlobalLogout = () => {
-        const processedKey = 'msal_global_logout_processed';
+        const processedKey = 'app_global_logout_processed';
         const processedValue = localStorage.getItem(processedKey);
         const lastProcessed = processedValue ? parseInt(processedValue, 10) : 0;
 
         // Check localStorage for global logout flag (works across same browser)
-        const logoutFlag = localStorage.getItem('msal_global_logout');
+        const logoutFlag = localStorage.getItem('app_global_logout');
         if (logoutFlag) {
           // Check if it's recent (within last 5 minutes)
           const logoutTime = parseInt(logoutFlag, 10);
@@ -58,28 +53,14 @@ function App() {
           if (!Number.isNaN(logoutTime) && now - logoutTime < 300000 && logoutTime > lastProcessed) { // 5 minutes
             console.log('Global logout detected, logging out...');
             // Clear the flag
-            localStorage.removeItem('msal_global_logout');
+            localStorage.removeItem('app_global_logout');
             localStorage.setItem(processedKey, logoutTime.toString());
             // Force logout
             instance.logoutRedirect();
             return;
           } else {
             // Flag is old, remove it
-            localStorage.removeItem('msal_global_logout');
-          }
-        }
-        
-        // Also check cookie as fallback
-        const cookies = document.cookie ? document.cookie.split(';') : [];
-        const logoutCookie = cookies.find(cookie => cookie.trim().startsWith('msal_global_logout='));
-        if (logoutCookie) {
-          const cookieValue = parseInt(logoutCookie.split('=')[1], 10);
-          if (!Number.isNaN(cookieValue) && cookieValue > lastProcessed) {
-            console.log('Global logout detected via cookie, logging out...');
-            localStorage.setItem(processedKey, cookieValue.toString());
-            // Force logout
-            instance.logoutRedirect();
-            return;
+            localStorage.removeItem('app_global_logout');
           }
         }
       };

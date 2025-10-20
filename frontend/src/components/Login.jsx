@@ -6,59 +6,26 @@ export const Login = () => {
   const { instance } = useMsal();
 
   const handleLogin = (loginType) => {
-    // ONLY clear interaction status flags in sessionStorage (not the actual tokens!)
-    // Clearing localStorage tokens causes loss of session on redirect
-    try {
-      console.log('[Login] Clearing all MSAL sessionStorage (preserving localStorage tokens)...');
-      
-      // Clear ALL MSAL sessionStorage keys (not just interaction status)
-      // This prevents "interaction_in_progress" errors from stale state
-      const sessKeys = [];
-      for (let i = 0; i < sessionStorage.length; i++) sessKeys.push(sessionStorage.key(i));
-      sessKeys.forEach(k => {
-        if (!k) return;
-        // Remove ALL MSAL-related sessionStorage entries
-        if (k.includes('msal') || k.includes('login.windows')) {
-          try { 
-            sessionStorage.removeItem(k);
-            console.log('[Login] Cleared session key:', k);
-          } catch (e) {}
-        }
-      });
-
-      // DO NOT clear localStorage - it contains the encrypted tokens!
-      // The old code was deleting all MSAL keys including tokens, causing loss of state
-      console.log('[Login] Preserving localStorage tokens for session persistence');
-      
-    } catch (e) {
-      console.warn('[Login] Error clearing sessionStorage', e);
-    }
-
     if (loginType === 'popup') {
-      // small delay to allow storage mutations to complete
-      setTimeout(() => {
-        instance.loginPopup(loginRequest)
-          .then((response) => {
-            console.log('[Login] Popup login successful:', response);
-            // Set the active account
-            if (response && response.account) {
-              instance.setActiveAccount(response.account);
-              console.log('[Login] Active account set to:', response.account.username);
-            }
-            try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
-            return response;
-          })
-          .catch((error) => {
-            console.error('Login error:', error);
-          });
-      }, 150);
-    } else if (loginType === 'redirect') {
-      setTimeout(() => {
-        // For redirect flows the result is handled via handleRedirectPromise in main.jsx
-        instance.loginRedirect(loginRequest).catch((error) => {
+      instance.loginPopup(loginRequest)
+        .then((response) => {
+          console.log('[Login] Popup login successful:', response);
+          // Set the active account
+          if (response && response.account) {
+            instance.setActiveAccount(response.account);
+            console.log('[Login] Active account set to:', response.account.username);
+          }
+          try { localStorage.setItem('app_logged_in', '1'); } catch (e) { /* ignore */ }
+          return response;
+        })
+        .catch((error) => {
           console.error('Login error:', error);
         });
-      }, 150);
+    } else if (loginType === 'redirect') {
+      // For redirect flows the result is handled via handleRedirectPromise in main.jsx
+      instance.loginRedirect(loginRequest).catch((error) => {
+        console.error('Login error:', error);
+      });
     }
   };
 
