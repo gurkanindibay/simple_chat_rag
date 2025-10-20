@@ -18,7 +18,7 @@ This document describes the implementation of a **true Single Sign-On (SSO) demo
 2. **SSO Showcase Application**
    - **Technology**: Vanilla HTML/CSS/JavaScript + MSAL.js
    - **Port**: 8001
-   - **Client ID**: *New client ID (to be registered)*
+   - **Client ID**: `630f781d-5e19-46c4-9273-35ed836088a2`
    - **Purpose**: Demonstrate SSO capability
    - **Location**: `sso-showcase-spa/`
 
@@ -50,6 +50,22 @@ User Journey:
 - Different Client IDs = different apps sharing authentication (true SSO)
 
 This mirrors real-world scenarios where companies have multiple applications (HR portal, Email, etc.) all using the same identity provider.
+
+### Global Logout Implementation
+
+**Enhanced SSO Experience**: When logging out from any application, all MSAL-related localStorage is cleared, effectively logging out from all applications in the session.
+
+```javascript
+// Global logout clears all MSAL tokens across apps
+const keysToRemove = [];
+for (let i = 0; i < localStorage.length; i++) {
+  const key = localStorage.key(i);
+  if (key && (key.includes('msal') || key.includes('login.windows'))) {
+    keysToRemove.push(key);
+  }
+}
+keysToRemove.forEach(key => localStorage.removeItem(key));
+```
 
 ### Why localStorage (not sessionStorage)?
 
@@ -125,17 +141,16 @@ async function attemptSSOSilent() {
 
 1. **Azure Portal Configuration**:
    ```
-   Create new App Registration:
+   ✅ New App Registration Created:
    - Name: "SSO Showcase SPA"
    - Type: Single-page application
    - Redirect URI: http://localhost:8001
-   - Copy the Client ID
+   - Client ID: 630f781d-5e19-46c4-9273-35ed836088a2
    ```
 
 2. **Configure the SPA**:
    ```bash
-   cd sso-showcase-spa
-   python3 configure.py YOUR-NEW-CLIENT-ID
+   ✅ Client ID configured in index.html
    ```
 
 3. **Start the server**:
@@ -202,7 +217,7 @@ async function attemptSSOSilent() {
 - [ ] SSO Showcase app authentication works independently
 - [ ] SSO: Main → Showcase (auto-auth)
 - [ ] SSO: Showcase → Main (auto-auth)
-- [ ] Logout from one logs out both
+- [ ] Logout from one logs out both (global logout)
 - [ ] Works across multiple browser tabs
 - [ ] Clear cache breaks SSO (expected)
 - [ ] Private/incognito mode works independently

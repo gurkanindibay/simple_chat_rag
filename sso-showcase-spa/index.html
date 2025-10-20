@@ -307,13 +307,13 @@
         // Configuration - These will be replaced with actual values
         const msalConfig = {
             auth: {
-                clientId: 'a8a16485-0827-46c6-b3e0-91fca5966341', // Using SAME client ID as main app for SSO
+                clientId: '630f781d-5e19-46c4-9273-35ed836088a2', // Different client ID for true cross-app SSO
                 authority: 'https://login.microsoftonline.com/066690f2-a8a6-4889-852e-124371dcbd6f',
                 redirectUri: 'http://localhost:8001'
             },
             cache: {
-                cacheLocation: 'localStorage', // Enable SSO across tabs
-                storeAuthStateInCookie: false
+                cacheLocation: 'localStorage', // Keep localStorage for token storage
+                storeAuthStateInCookie: true    // Keep cookies for cross-origin coordination
             }
         };
 
@@ -333,16 +333,137 @@
 
         let accountId = null;
 
+        // Check for global logout periodically
+        setInterval(() => {
+            // Skip check if there's an ongoing MSAL interaction
+            if (msalInstance.getConfiguration().cache.storeAuthStateInCookie) {
+                try {
+                    // Try to detect if interaction is in progress by checking for interaction status
+                    const interactionStatus = sessionStorage.getItem('msal.interaction.status');
+                    if (interactionStatus) {
+                        return; // Skip logout check during interactions
+                    }
+                } catch (e) {
+                    // Ignore errors in interaction status check
+                }
+            }
+            
+            let logoutHandled = false;
+            const processedKey = 'msal_global_logout_processed';
+            const processedValue = localStorage.getItem(processedKey);
+            const lastProcessed = processedValue ? parseInt(processedValue, 10) : 0;
+            const now = Date.now();
+
+            // Check localStorage for global logout flag (same-browser signal)
+            const logoutFlag = localStorage.getItem('msal_global_logout');
+            if (logoutFlag) {
+                // Check if it's recent (within last 5 minutes)
+                const logoutTime = parseInt(logoutFlag, 10);
+                if (!Number.isNaN(logoutTime) && now - logoutTime < 300000 && logoutTime > lastProcessed) { // 5 minutes
+                    console.log('Global logout detected during periodic check, logging out...');
+                    // Clear the flag
+                    localStorage.removeItem('msal_global_logout');
+                    localStorage.setItem(processedKey, logoutTime.toString());
+                    // Force logout state
+                    document.getElementById('statusDot').className = 'status-dot error';
+                    document.getElementById('statusText').textContent = 'Logged out - Please sign in';
+                    document.getElementById('loginBtn').style.display = 'inline-block';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    // Clear local storage
+                    const keysToRemove = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && (key.includes('msal') || key.includes('login.windows')) && key !== 'msal_global_logout' && key !== 'msal_global_logout_processed') {
+                            keysToRemove.push(key);
+                        }
+                    }
+                    keysToRemove.forEach(key => localStorage.removeItem(key));
+                    logoutHandled = true;
+                } else {
+                    // Flag is old, remove it
+                    localStorage.removeItem('msal_global_logout');
+                }
+            }
+
+            if (!logoutHandled) {
+                try {
+                    const cookies = document.cookie ? document.cookie.split(';') : [];
+                    const logoutCookie = cookies.find(cookie => cookie.trim().startsWith('msal_global_logout='));
+                    if (logoutCookie) {
+                        const cookieValue = parseInt(logoutCookie.split('=')[1], 10);
+                        if (!Number.isNaN(cookieValue) && cookieValue > lastProcessed && now - cookieValue < 300000) {
+                            console.log('Global logout detected via cookie, logging out...');
+                            localStorage.setItem(processedKey, cookieValue.toString());
+                            const statusDotEl = document.getElementById('statusDot');
+                            const statusTextEl = document.getElementById('statusText');
+                            statusDotEl.className = 'status-dot error';
+                            statusTextEl.textContent = 'Logged out - Please sign in';
+                            document.getElementById('loginBtn').style.display = 'inline-block';
+                            document.getElementById('logoutBtn').style.display = 'none';
+
+                            // Clear MSAL caches
+                            const keysToRemove = [];
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const key = localStorage.key(i);
+                                if (key && (key.includes('msal') || key.includes('login.windows')) && key !== 'msal_global_logout' && key !== 'msal_global_logout_processed') {
+                                    keysToRemove.push(key);
+                                }
+                            }
+                            keysToRemove.forEach(key => localStorage.removeItem(key));
+
+                            // Expire the cookie so it doesn't trigger repeatedly
+                            document.cookie = 'msal_global_logout=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+                            logoutHandled = true;
+                        }
+                    }
+                } catch (cookieError) {
+                    console.warn('Cookie check for global logout failed.', cookieError);
+                }
+            }
+        }, 5000);
+
         // Handle redirect promise
         msalInstance.handleRedirectPromise()
             .then(response => {
                 if (response) {
                     accountId = response.account.homeAccountId;
                     showUserInfo(response.account);
-                } else {
-                    // Try SSO silent authentication
-                    attemptSSOSilent();
+                    return;
                 }
+
+                // If we already have a cached account (same client ID) show it immediately
+                const cachedAccounts = msalInstance.getAllAccounts();
+                if (cachedAccounts.length === 1) {
+                    accountId = cachedAccounts[0].homeAccountId;
+                    showUserInfo(cachedAccounts[0]);
+                    return;
+                }
+
+                if (cachedAccounts.length > 1) {
+                    console.log('Multiple cached accounts detected for this application. Prompting user to pick one.');
+                    const statusDotEl = document.getElementById('statusDot');
+                    const statusTextEl = document.getElementById('statusText');
+                    statusDotEl.className = 'status-dot error';
+                    statusTextEl.textContent = 'Multiple cached accounts - Please select one';
+                    document.getElementById('loginBtn').style.display = 'inline-block';
+                    const authContent = document.getElementById('authContent');
+                    authContent.innerHTML = `
+                        <div class="info-box" style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                            <strong>🔄 Account Selection Required</strong><br><br>
+                            <p>This application has multiple cached Microsoft identities. Please choose which one to use by signing in.</p>
+                            <br>
+                            <ol style="margin-left: 20px;">
+                                <li>Click "Sign in with Microsoft"</li>
+                                <li>Select the desired account when prompted</li>
+                                <li>The page will remember your choice after refresh</li>
+                            </ol>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Try SSO silent authentication when no cached account is available
+                attemptSSOSilent();
             })
             .catch(error => {
                 console.error('Redirect error:', error);
@@ -350,6 +471,52 @@
             });
 
         async function attemptSSOSilent() {
+            // Check for global logout flag first
+            // Check localStorage for global logout flag (works across same browser)
+            const processedKey = 'msal_global_logout_processed';
+            const processedValue = localStorage.getItem(processedKey);
+            const lastProcessed = processedValue ? parseInt(processedValue, 10) : 0;
+            const currentTime = Date.now();
+            const logoutFlag = localStorage.getItem('msal_global_logout');
+            if (logoutFlag) {
+                // Check if it's recent (within last 5 minutes)
+                const logoutTime = parseInt(logoutFlag, 10);
+                if (!Number.isNaN(logoutTime) && currentTime - logoutTime < 300000 && logoutTime > lastProcessed) { // 5 minutes
+                    console.log('Global logout detected, showing login button...');
+                    // Clear the flag
+                    localStorage.removeItem('msal_global_logout');
+                    localStorage.setItem(processedKey, logoutTime.toString());
+                    // Show login button
+                    document.getElementById('statusDot').className = 'status-dot error';
+                    document.getElementById('statusText').textContent = 'Logged out - Please sign in';
+                    document.getElementById('loginBtn').style.display = 'inline-block';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    return;
+                } else {
+                    // Flag is old, remove it
+                    localStorage.removeItem('msal_global_logout');
+                }
+            }
+            
+            // Also check cookie as fallback
+            const cookies = document.cookie.split(';');
+            const logoutCookie = cookies.find(cookie => cookie.trim().startsWith('msal_global_logout='));
+            if (logoutCookie) {
+                const cookieValue = parseInt(logoutCookie.split('=')[1], 10);
+                if (!Number.isNaN(cookieValue) && cookieValue > lastProcessed && currentTime - cookieValue < 300000) {
+                    console.log('Global logout detected via cookie, showing login button...');
+                    localStorage.setItem(processedKey, cookieValue.toString());
+                    // Clear the flag so it doesn't repeatedly fire
+                    document.cookie = 'msal_global_logout=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+                    // Show login button
+                    document.getElementById('statusDot').className = 'status-dot error';
+                    document.getElementById('statusText').textContent = 'Logged out - Please sign in';
+                    document.getElementById('loginBtn').style.display = 'inline-block';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    return;
+                }
+            }
+            
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
             
@@ -357,36 +524,45 @@
             statusText.textContent = 'Attempting SSO silent authentication...';
 
             try {
-                // First, try to get accounts from localStorage
-                const accounts = msalInstance.getAllAccounts();
-                
-                if (accounts.length > 0) {
-                    // Found an account in localStorage - use it
-                    console.log('Found account in localStorage:', accounts[0].username);
-                    accountId = accounts[0].homeAccountId;
-                    
-                    // Try to acquire token silently
-                    try {
-                        const tokenResponse = await msalInstance.acquireTokenSilent({
-                            ...loginRequest,
-                            account: accounts[0]
-                        });
-                        showUserInfo(accounts[0]);
-                        showSuccess('✅ SSO Successful! You were automatically authenticated using cached tokens.');
-                        return;
-                    } catch (tokenError) {
-                        console.log('Token acquisition failed, trying ssoSilent:', tokenError);
-                    }
-                }
-                
-                // No accounts in localStorage, try ssoSilent (checks Microsoft's session cookies)
-                console.log('No cached accounts, attempting ssoSilent...');
+                // For SSO with different client IDs, rely on ssoSilent() which checks Microsoft's session
+                // Don't try to use cached accounts from localStorage as they are client-ID specific
+                console.log('Attempting ssoSilent for cross-app SSO...');
                 const response = await msalInstance.ssoSilent(loginRequest);
                 accountId = response.account.homeAccountId;
                 showUserInfo(response.account);
                 showSuccess('✅ SSO Successful! You were automatically authenticated via Microsoft session.');
             } catch (error) {
                 console.log('SSO Silent failed:', error);
+                
+                // Handle specific Azure AD errors with multiple identities (AADSTS16000)
+                const errorMessage = error.message || '';
+                const isMultipleIdentitiesError = errorMessage.includes('AADSTS16000') || 
+                                                 errorMessage.includes('multiple user identities') ||
+                                                 (error.errorCode === 'interaction_required' && errorMessage.includes('AADSTS16000'));
+                
+                if (isMultipleIdentitiesError) {
+                    // Multiple identities available - this is expected with different client IDs
+                    console.log('Multiple identities detected - showing login button for user selection');
+                    statusDot.className = 'status-dot error';
+                    statusText.textContent = 'Multiple accounts found - Please sign in';
+                    document.getElementById('loginBtn').style.display = 'inline-block';
+                    
+                    const authContent = document.getElementById('authContent');
+                    authContent.innerHTML = `
+                        <div class="info-box" style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                            <strong>🔄 Account Selection Required</strong><br><br>
+                            <p>Multiple Microsoft accounts are available in your session. This is normal when using different applications.</p>
+                            <br>
+                            <p><strong>To complete SSO:</strong></p>
+                            <ol style="margin-left: 20px;">
+                                <li>Click "Sign in with Microsoft" below</li>
+                                <li>Select the same account you used for the main app</li>
+                                <li>You should NOT see a password prompt</li>
+                            </ol>
+                        </div>
+                    `;
+                    return;
+                }
                 
                 if (error.errorCode === 'interaction_required' || 
                     error.errorCode === 'consent_required' || 
@@ -401,15 +577,15 @@
                             <strong>ℹ️ SSO Not Available</strong><br><br>
                             <p>No active Microsoft session found. This is expected because:</p>
                             <ul style="margin-left: 20px; margin-top: 10px;">
-                                <li><strong>Different Origins:</strong> localStorage is isolated per origin (port 5173 vs 8001)</li>
+                                <li><strong>Different Client IDs:</strong> Each app has its own authentication context</li>
                                 <li><strong>No Microsoft Session:</strong> You may not have signed in recently enough</li>
-                                <li><strong>Cookie Restrictions:</strong> Browser security prevents direct cookie sharing</li>
+                                <li><strong>Session Expired:</strong> Microsoft sessions expire after a period of inactivity</li>
                             </ul>
                             <br>
                             <p><strong>To test true SSO:</strong></p>
                             <ol style="margin-left: 20px;">
-                                <li>Click "Sign in with Microsoft" below</li>
-                                <li>You should NOT see a password prompt (SSO works!)</li>
+                                <li>Sign in to the main app (localhost:5173) first</li>
+                                <li>Then refresh this SSO showcase page</li>
                                 <li>Microsoft will recognize your existing session</li>
                             </ol>
                         </div>
@@ -471,17 +647,93 @@
         }
 
         // Login button handler
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            msalInstance.loginRedirect(loginRequest);
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            // Prevent multiple simultaneous login attempts
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn.disabled) return;
+            
+            // Clear any stale MSAL interaction flags that might block new redirects
+            try {
+                const interactionStatus = sessionStorage.getItem('msal.interaction.status');
+                if (interactionStatus) {
+                    console.log('Clearing stale MSAL interaction status before starting a new login.', interactionStatus);
+                    sessionStorage.removeItem('msal.interaction.status');
+                }
+            } catch (statusError) {
+                console.warn('Unable to read MSAL interaction status from sessionStorage.', statusError);
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+
+            try {
+                await msalInstance.loginRedirect(loginRequest);
+            } catch (error) {
+                console.error('Login error:', error);
+
+                if (error && error.errorCode === 'interaction_in_progress') {
+                    showInfo('Another Microsoft authentication flow is already running. Complete or close it, then try again.');
+                } else {
+                    showError('Login failed: ' + (error.message || 'Unknown error'));
+                }
+
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign in with Microsoft';
+            }
         });
 
         // Logout button handler
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            const account = msalInstance.getAllAccounts()[0];
-            if (account) {
-                msalInstance.logoutRedirect({
-                    account: account
+            // Prevent multiple simultaneous logout attempts
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn.disabled) return;
+            
+            logoutBtn.disabled = true;
+            logoutBtn.textContent = 'Signing out...';
+            
+            try {
+                const logoutMarker = Date.now().toString();
+                // Set global logout flag using localStorage (works across same browser)
+                localStorage.setItem('msal_global_logout', logoutMarker);
+                localStorage.setItem('msal_global_logout_processed', logoutMarker);
+                
+                // Also try cookie for cross-origin (will be rejected on localhost but that's ok)
+                try {
+                    document.cookie = `msal_global_logout=${logoutMarker}; path=/; max-age=300`;
+                } catch (cookieError) {
+                    // Ignore cookie errors on localhost
+                }
+                
+                // Clear all MSAL-related localStorage and cookies for global logout
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('msal') || key.includes('login.windows')) && key !== 'msal_global_logout' && key !== 'msal_global_logout_processed') {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                // Clear MSAL-related cookies
+                document.cookie.split(';').forEach(cookie => {
+                    const cookieName = cookie.split('=')[0].trim();
+                    if ((cookieName.includes('msal') || cookieName.includes('login.windows')) && cookieName !== 'msal_global_logout') {
+                        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+                    }
                 });
+                
+                // Perform MSAL logout - this should invalidate Microsoft session
+                const account = msalInstance.getAllAccounts()[0];
+                if (account) {
+                    msalInstance.logoutRedirect({
+                        account: account,
+                        postLogoutRedirectUri: 'http://localhost:8001'
+                    });
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                logoutBtn.disabled = false;
+                logoutBtn.textContent = 'Sign Out';
             }
         });
     </script>

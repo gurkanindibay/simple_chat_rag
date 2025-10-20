@@ -23,7 +23,7 @@ export const msalConfig = {
   },
   cache: {
     cacheLocation: 'localStorage', // Changed to localStorage for SSO across tabs/windows
-    storeAuthStateInCookie: false, // Set to true if you have issues with IE11 or Edge
+    storeAuthStateInCookie: true, // Enable cookies for Safari compatibility
   },
   // MSAL system logger options - writes MSAL logs to the browser console
   system: {
